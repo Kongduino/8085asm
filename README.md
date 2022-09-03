@@ -12,3 +12,6 @@ I have forked this repository to improve and add to the assembler and disassembl
 
 I am planning to rework the code and make it – possibly – into a GUI app, backed by the 2 command-line applications. So... WIP.
 
+In between, it seems to work:
+
+![asm disasm](img/asm_dasm.png)
