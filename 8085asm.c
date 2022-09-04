@@ -83,6 +83,7 @@ int parse(char * line) {
     label = NULL;
     men = strtok(sline, " \t:,\n");
   }
+  printf("men = %s\n", men);
   if (men == NULL)return 0;
   arg1 = strtok(NULL, " \t:,\n");
   arg2 = strtok(NULL, " \t:,\n");
@@ -155,7 +156,7 @@ int parse(char * line) {
   //busca pseudo
   if (strcmp("ORG", men) == 0) {
     addr = parsearg(arg1, line);
-    // printf("org ===> %04X\n",i);
+    printf("org ===> 0x%04X\n", addr);
     return 0;
   };
   if ((label != NULL) && (pass == 1)) {
@@ -191,6 +192,7 @@ int parse(char * line) {
 int main(int argc, char** argv) {
   char fname[256];
   char fname2[256];
+  char fname3[256];
   FILE* fin;
   char line[256];
   int i;
@@ -201,6 +203,7 @@ int main(int argc, char** argv) {
   char *fnamep;
   FILE *fout;
   FILE *fout2;
+  FILE *fout3;
   if (argc == 2) {
     strcpy(fname, argv[1]);
   } else {
@@ -217,28 +220,189 @@ int main(int argc, char** argv) {
   printf("LCGamboa 8085 assembler 2008\n\n");
   strcpy(fname2, fnamep);
   strcat(fname2, ".map");
+  strcpy(fname3, fnamep);
+  strcat(fname3, ".co");
   fout = fopen(fname2, "w");
   if (!fout) {
     printf("Error open file:%s\n", fname2);
     return -1;
   }
   fprintf(fout, "LCGamboa 8085 assembler 2008\n\n");
+  strcpy(labels[labelsc].nome, "DISPLAY");
+  labels[labelsc++].value = 0x5A58;
+  strcpy(labels[labelsc].nome, "LCD");
+  labels[labelsc++].value = 0x4B44;
+  strcpy(labels[labelsc].nome, "CHGET");
+  labels[labelsc++].value = 0x12CB;
+  strcpy(labels[labelsc].nome, "MENU");
+  labels[labelsc++].value = 0x5797;
+  strcpy(labels[labelsc].nome, "UNPLOT");
+  labels[labelsc++].value = 0x744C;
+  strcpy(labels[labelsc].nome, "PLOT");
+  labels[labelsc++].value = 0x744D;
+  strcpy(labels[labelsc].nome, "POSIT");
+  labels[labelsc++].value = 0x4D7C;
+  strcpy(labels[labelsc].nome, "ESCA");
+  labels[labelsc++].value = 0x4270;
+  strcpy(labels[labelsc].nome, "CRLF");
+  labels[labelsc++].value = 0x4222;
+  strcpy(labels[labelsc].nome, "HOME");
+  labels[labelsc++].value = 0x422D;
+  strcpy(labels[labelsc].nome, "CLS");
+  labels[labelsc++].value = 0x4231;
+  strcpy(labels[labelsc].nome, "SETSYS");
+  labels[labelsc++].value = 0x4235;
+  strcpy(labels[labelsc].nome, "RSTSYS");
+  labels[labelsc++].value = 0x423A;
+  strcpy(labels[labelsc].nome, "LOCK");
+  labels[labelsc++].value = 0x423F;
+  strcpy(labels[labelsc].nome, "UNLOCK");
+  labels[labelsc++].value = 0x4244;
+  strcpy(labels[labelsc].nome, "CURSON");
+  labels[labelsc++].value = 0x4249;
+  strcpy(labels[labelsc].nome, "CUROFF");
+  labels[labelsc++].value = 0x424E;
+  strcpy(labels[labelsc].nome, "DELLIN");
+  labels[labelsc++].value = 0x4253;
+  strcpy(labels[labelsc].nome, "INSLIN");
+  labels[labelsc++].value = 0x4258;
+  strcpy(labels[labelsc].nome, "ERAEOL");
+  labels[labelsc++].value = 0x425D;
+  strcpy(labels[labelsc].nome, "ENTREV");
+  labels[labelsc++].value = 0x4269;
+  strcpy(labels[labelsc].nome, "EXTREV");
+  labels[labelsc++].value = 0x426E;
+  strcpy(labels[labelsc].nome, "KYREAD");
+  labels[labelsc++].value = 0x7242;
+  strcpy(labels[labelsc].nome, "CHGET");
+  labels[labelsc++].value = 0x12CB;
+  strcpy(labels[labelsc].nome, "STFNK");
+  labels[labelsc++].value = 0x5A7C;
+  strcpy(labels[labelsc].nome, "CLRFNK");
+  labels[labelsc++].value = 0x5A79;
+  strcpy(labels[labelsc].nome, "FNKSB");
+  labels[labelsc++].value = 0x5A9E;
+  strcpy(labels[labelsc].nome, "DSPFNK");
+  labels[labelsc++].value = 0x42A5;
+  strcpy(labels[labelsc].nome, "ERAFNK");
+  labels[labelsc++].value = 0x428A;
+  strcpy(labels[labelsc].nome, "CHSNS");
+  labels[labelsc++].value = 0x13DB;
+  strcpy(labels[labelsc].nome, "KEYX");
+  labels[labelsc++].value = 0x7270;
+  strcpy(labels[labelsc].nome, "BRKCHK");
+  labels[labelsc++].value = 0x7283;
+  strcpy(labels[labelsc].nome, "INLIN");
+  labels[labelsc++].value = 0x4644;
+  strcpy(labels[labelsc].nome, "PRINTR");
+  labels[labelsc++].value = 0x6D3F;
+  strcpy(labels[labelsc].nome, "PNOTAB");
+  labels[labelsc++].value = 0x1470;
+  strcpy(labels[labelsc].nome, "PRTTAB");
+  labels[labelsc++].value = 0x4B55;
+  strcpy(labels[labelsc].nome, "PRTLCD");
+  labels[labelsc++].value = 0x1E5E;
+  strcpy(labels[labelsc].nome, "DISC");
+  labels[labelsc++].value = 0x52BB;
+  strcpy(labels[labelsc].nome, "CONN");
+  labels[labelsc++].value = 0x52D0;
+  strcpy(labels[labelsc].nome, "DIAL");
+  labels[labelsc++].value = 0x532D;
+  strcpy(labels[labelsc].nome, "RCVX");
+  labels[labelsc++].value = 0x6D6D;
+  strcpy(labels[labelsc].nome, "RV232C");
+  labels[labelsc++].value = 0x6D7E;
+  strcpy(labels[labelsc].nome, "SD232C");
+  labels[labelsc++].value = 0x6E32;
+  strcpy(labels[labelsc].nome, "SENDCQ");
+  labels[labelsc++].value = 0x6E0B;
+  strcpy(labels[labelsc].nome, "SENDCS");
+  labels[labelsc++].value = 0x6E1E;
+  strcpy(labels[labelsc].nome, "CARDET");
+  labels[labelsc++].value = 0x6EEF;
+  strcpy(labels[labelsc].nome, "BAUDST");
+  labels[labelsc++].value = 0x6E75;
+  strcpy(labels[labelsc].nome, "INZCOM");
+  labels[labelsc++].value = 0x6EA6;
+  strcpy(labels[labelsc].nome, "CLSCOM");
+  labels[labelsc++].value = 0x6ECB;
+  strcpy(labels[labelsc].nome, "DATAR");
+  labels[labelsc++].value = 0x702A;
+  strcpy(labels[labelsc].nome, "DATAW");
+  labels[labelsc++].value = 0x6F5B;
+  strcpy(labels[labelsc].nome, "CTON");
+  labels[labelsc++].value = 0x14A8;
+  strcpy(labels[labelsc].nome, "CTOF");
+  labels[labelsc++].value = 0x14AA;
+  strcpy(labels[labelsc].nome, "CASIN");
+  labels[labelsc++].value = 0x14B0;
+  strcpy(labels[labelsc].nome, "CSOUT");
+  labels[labelsc++].value = 0x14C1;
+  strcpy(labels[labelsc].nome, "SYNCW");
+  labels[labelsc++].value = 0x6F46;
+  strcpy(labels[labelsc].nome, "SYNCR");
+  labels[labelsc++].value = 0x6F85;
+  strcpy(labels[labelsc].nome, "MAKTXT");
+  labels[labelsc++].value = 0x220F;
+  strcpy(labels[labelsc].nome, "FILNAM");
+  labels[labelsc++].value = 0xFC93;
+  strcpy(labels[labelsc].nome, "CHKDC");
+  labels[labelsc++].value = 0x5AA9;
+  strcpy(labels[labelsc].nome, "GTXTTB");
+  labels[labelsc++].value = 0x5AE3;
+  strcpy(labels[labelsc].nome, "KILASC");
+  labels[labelsc++].value = 0x1FBE;
+  strcpy(labels[labelsc].nome, "INSCHR");
+  labels[labelsc++].value = 0x6B61;
+  strcpy(labels[labelsc].nome, "MAKHOL");
+  labels[labelsc++].value = 0x6B6D;
+  strcpy(labels[labelsc].nome, "MASDEL");
+  labels[labelsc++].value = 0x6B9F;
+  strcpy(labels[labelsc].nome, "INITIO");
+  labels[labelsc++].value = 0x6CD6;
+  strcpy(labels[labelsc].nome, "IOINIT");
+  labels[labelsc++].value = 0x6CE0;
+  strcpy(labels[labelsc].nome, "MUSIC");
+  labels[labelsc++].value = 0x72C5;
+  strcpy(labels[labelsc].nome, "TIME");
+  labels[labelsc++].value = 0x190F;
+  strcpy(labels[labelsc].nome, "DATE");
+  labels[labelsc++].value = 0x192F;
+  strcpy(labels[labelsc].nome, "DAY");
+  labels[labelsc++].value = 0x1962;
+  strcpy(labels[labelsc].nome, "SECS0");
+  labels[labelsc++].value = 0xF933;
+  strcpy(labels[labelsc].nome, "SECS1");
+  labels[labelsc++].value = 0xF934;
+  strcpy(labels[labelsc].nome, "CSRY");
+  labels[labelsc++].value = 0xF639;
+  strcpy(labels[labelsc].nome, "CSRX");
+  labels[labelsc++].value = 0xF63A;
+  strcpy(labels[labelsc].nome, "BEGLCD");
+  labels[labelsc++].value = 0xFE00;
+  strcpy(labels[labelsc].nome, "ENDLCD");
+  labels[labelsc++].value = 0xFF40;
+  strcpy(labels[labelsc].nome, "STAT");
+  labels[labelsc++].value = 0xF65B;
+  strcpy(labels[labelsc].nome, "DIRTBL");
+  labels[labelsc++].value = 0xF962;
   pass = 1;
   while (fgets(line, 256, fin)) {
     if (line[0] == ';') {
       // printf("%5i                           ==> %s",lc,line);
+
     } else {
       if (parse(line)) {
-        // printf("%5i     %04X    ",lc,addr);
+        printf("%5i     %04X    ",lc,addr);
         // for(i=0;i<=addi;i++)printf("%02X ",prg[i]);
         // for(i=addi;i<3;i++)printf("   ");
-        // printf("  ==> %s\n",line);
+        printf("  ==> %s\n",line);
         addr += 1 + addi;
       } else {
         // if(strtok(line,"\n\r") != NULL)
-        // printf("%5i                           ==> %s\n",lc,line);
+        printf("%5i                           ==> %s\n",lc,line);
         // else
-        // printf("%5i                           ==> \n",lc);
+        printf("%5i                           ==> \n",lc);
       }
     }
     lc++;
@@ -272,11 +436,14 @@ int main(int argc, char** argv) {
     lc++;
   }
   fprintf(fout, "\n\nSYMBOLIC TABLE:\n\n");
+  printf("\n\nSYMBOLIC TABLE:\n\n");
+
   for (i = 0; i < labelsc; i++) {
     fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
   }
   fprintf(fout, "\n\nMEM  (%i bytes):\n\n", memc);
   printf("MEM  (%i bytes):\n\n", memc);
+  printf("Saving %s, %s and %s:\n", fname, fname2, fname3);
   strcpy(fname2, fnamep);
   strcat(fname2, ".hex");
   fout2 = fopen(fname2, "w");
@@ -284,10 +451,16 @@ int main(int argc, char** argv) {
     printf("Error open file:%s\n", fname2);
     return -1;
   }
+  fout3 = fopen(fname3, "w");
+  if (!fout3) {
+    printf("Error open file:%s\n", fname3);
+    return -1;
+  }
   nb = 0;
   sum = 0;
   for (i = 0; i < memc; i++) {
-    //    printf(" %04XH  %02XH\n",mem[i].addr,mem[i].value);
+    fprintf(fout3, "%c", mem[i].value);
+    printf(" %04XH  %02XH\n",mem[i].addr,mem[i].value);
     if (nb == 0) {
       iaddr = mem[i].addr;
       sprintf(values, "%02X", mem[i].value);
@@ -300,7 +473,7 @@ int main(int argc, char** argv) {
       sum += nb;
       sum += (iaddr & 0x00FF);
       sum += ((iaddr & 0xFF00) >> 8);
-      //printf("sum=%02X %02X %02X\n",sum,~sum,(~sum)+1);
+      // printf("sum=%02X %02X %02X\n",sum,~sum,(~sum)+1);
       sum = (~sum) + 1;
       fprintf(fout2, ":%02X%04X00%s%02X\n", nb, iaddr, values, sum);
       fprintf(fout, ":%02X%04X00%s%02X\n", nb, iaddr, values, sum);
@@ -312,7 +485,7 @@ int main(int argc, char** argv) {
   fprintf(fout, ":00000001FF\n");
   fclose(fout);
   fclose(fout2);
-  printf("Type enter to exit\n");
-  getchar();
+  fclose(fout3);
+  printf("%s!\n\n\n", "done");
   return 1;
 }
