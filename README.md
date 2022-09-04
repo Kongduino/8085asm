@@ -28,17 +28,17 @@ I added the known function and variable names to the compiler as labels, and the
     ORG 0xDAC0
 
 BEGIN:	LXI H, MESSAGE ;set HL pointer to start of message data
-				CALL DISPLAY	 ;display message
-				LXI H, SECS1   ; SECS+1 = 0xF933+1 = 0xF934
-				MOV A, M
-				CALL LCD
-				LXI H, SECS0	 ; SECS0 = 0xF933
-				MOV A, M
-				CALL LCD
-				CALL CHGET
-				JMP MENU
+	CALL DISPLAY	 ;display message
+	LXI H, SECS1   ; SECS+1 = 0xF933+1 = 0xF934
+	MOV A, M
+	CALL LCD
+	LXI H, SECS0	 ; SECS0 = 0xF933
+	MOV A, M
+	CALL LCD
+	CALL CHGET
+	JMP MENU
 MESSAGE:	DB 0x54, 0x69, 0x6d, 0x65, 0x3a, 0x20
-				DB 0x00 ;terminator
+	DB 0x00 ;terminator
 
 ----->
 ;LCGamboa 8085 disassembler 2008
