@@ -104,7 +104,8 @@ LDA1F:   RIM
 LDA20:   DCR A 
 LDA21:   RIM 
 LDA22:   NOP 
-2022-09-04 21:28:11 ~/Z80-8080-8085/TRS80/ASM/ > hexdump -C test0.co
+
+> hexdump -C test0.co
 00000000  21 1a da cd 58 5a 21 34  f9 7e cd 44 4b 21 33 f9  |!...XZ!4.~.DK!3.|
 00000010  7e cd 44 4b cd cb 12 c3  97 57 c3 54 49 4d 45 20  |~.DK.....W.TIME |
 00000020  3d 20 00                                          |= .             |
