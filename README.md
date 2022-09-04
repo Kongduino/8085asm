@@ -22,50 +22,92 @@ In between, it seems to work:
 I added the known function and variable names to the compiler as labels, and they are recognized without the help of `EQU`s. A simple test code like this compiles as follows. I also added the creation of a plain binary file, with the `.co` extension.
 
 ```asm
-;PRTIME2
-;Nov 12, 1984
-;
-    ORG 0xDAC0
-
-BEGIN:	LXI H, MESSAGE ;set HL pointer to start of message data
-	CALL DISPLAY	 ;display message
-	LXI H, SECS1   ; SECS+1 = 0xF933+1 = 0xF934
-	MOV A, M
-	CALL LCD
-	LXI H, SECS0	 ; SECS0 = 0xF933
-	MOV A, M
-	CALL LCD
-	CALL CHGET
-	JMP MENU
-MESSAGE:	DB 0x54, 0x69, 0x6d, 0x65, 0x3a, 0x20
-	DB 0x00 ;terminator
-
------>
-;LCGamboa 8085 disassembler 2008
-
-         ORG DAC0
-LDAC0:   LXI H, 0xDADA
-LDAC3:   CALL DISPLAY [0x5A58]
-LDAC6:   LXI H, SECS1 [0xF934]
-LDAC9:   MOV A, M 
-LDACA:   CALL LCD [0x4B44]
-LDACD:   LXI H, SECS0 [0xF933]
-LDAD0:   MOV A, M 
-LDAD1:   CALL LCD [0x4B44]
-LDAD4:   CALL CHGET [0x12CB]
-LDAD7:   JMP MENU [0x5797]
-LDADA:   MOV D, H 
-LDADB:   MOV L, C 
-LDADC:   MOV L, L 
-LDADD:   MOV H, L 
-LDADE:   LDA 0x0020
+	ORG 0xDA00
+BEGIN:		LXI H, MESSAGE ;set HL pointer to start of message data
+			CALL DISPLAY       ;display message
+			LXI H, SECS1 ; SECS+1 = 0xF933+1 = 0xF934
+			MOV A, M
+			CALL LCD
+			LXI H, SECS0
+			MOV A, M
+			CALL LCD
+			CALL CHGET
+			JMP MENU
+MESSAGE:	DS "TIME = "
+			DB 0
 ```
+----->
 
 ```bash
-% hexdump -C test0.co
-00000000  21 da da cd 58 5a 21 34  f9 7e cd 44 4b 21 33 f9  |!???XZ!4?~?DK!3?|
-00000010  7e cd 44 4b cd cb 12 c3  97 57 54 69 6d 65 3a 20  |~?DK??.?.WTime: |
-00000020  00                                                |.               |
+> 8085asm test0.asm
+LCGamboa 8085 assembler 2008
+
+* Saving test0.map:
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (35 bytes):
+* Saving test0.hex and test0.co:
+ DA00H  21H
+ DA01H  1AH
+ DA02H  DAH
+ DA03H  CDH
+ DA04H  58H
+ DA05H  5AH
+ DA06H  21H
+ DA07H  34H
+ DA08H  F9H
+ DA09H  7EH
+ DA0AH  CDH
+ DA0BH  44H
+ DA0CH  4BH
+ DA0DH  21H
+ DA0EH  33H
+ DA0FH  F9H
+ DA10H  7EH
+ DA11H  CDH
+ DA12H  44H
+ DA13H  4BH
+ DA14H  CDH
+ DA15H  CBH
+ DA16H  12H
+ DA17H  C3H
+ DA18H  97H
+ DA19H  57H
+ DA1AH  C3H
+ DA1BH  54H
+ DA1CH  49H
+ DA1DH  4DH
+ DA1EH  45H
+ DA1FH  20H
+ DA20H  3DH
+ DA21H  20H
+ DA22H  00H
+done!
+
+> 8085dasm test0.hex
+;LCGamboa 8085 disassembler 2008
+
+         ORG DA00
+LDA00:   LXI H, 0xDA1A
+LDA03:   CALL DISPLAY [0x5A58]
+LDA06:   LXI H, SECS1 [0xF934]
+LDA09:   MOV A, M 
+LDA0A:   CALL LCD [0x4B44]
+LDA0D:   LXI H, SECS0 [0xF933]
+LDA10:   MOV A, M 
+LDA11:   CALL LCD [0x4B44]
+LDA14:   CALL CHGET [0x12CB]
+LDA17:   JMP MENU [0x5797]
+LDA1A:   JMP 0x4954
+LDA1D:   MOV C, L 
+LDA1E:   MOV B, L 
+LDA1F:   RIM 
+LDA20:   DCR A 
+LDA21:   RIM 
+LDA22:   NOP 
+2022-09-04 21:28:11 ~/Z80-8080-8085/TRS80/ASM/ > hexdump -C test0.co
+00000000  21 1a da cd 58 5a 21 34  f9 7e cd 44 4b 21 33 f9  |!...XZ!4.~.DK!3.|
+00000010  7e cd 44 4b cd cb 12 c3  97 57 c3 54 49 4d 45 20  |~.DK.....W.TIME |
+00000020  3d 20 00                                          |= .             |
 ```
 
-(DS seems to be borked, I'll check that out next...)
+DS has been fixed. I need to add DW.
