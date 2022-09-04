@@ -67,3 +67,5 @@ LDADE:   LDA 0x0020
 00000010  7e cd 44 4b cd cb 12 c3  97 57 54 69 6d 65 3a 20  |~?DK??.?.WTime: |
 00000020  00                                                |.               |
 ```
+
+(DS seems to be borked, I'll check that out next...)
