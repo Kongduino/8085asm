@@ -183,10 +183,20 @@ int parse(char * line) {
     return 1;
   }
   if (strcmp("DS", men) == 0) {
-    i = parsearg(arg1, line);
-    addr += i;
+    char tmp[32] = {0};
+    int na = sscanf(line, "%*[^\"]\"%[^\"]", &tmp);
+    if (na != 1) {
+      printf("Error scanning line for DS string: `%s`. na = %d, tmp = `%s`\n", line, na, tmp);
+      return -1;
+    }
+    int nx, ny = strlen(tmp);
+    for (nx = 0; nx < ny; nx++) {
+      // printf(" . Adding char %c like it was `DB `%02x`,\n", tmp[nx], tmp[nx]);
+      addi++;
+      prg[addi] = tmp[nx];
+    }
   }
-  return 0;
+  return 1;
 }
 
 int main(int argc, char** argv) {
