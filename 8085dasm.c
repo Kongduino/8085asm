@@ -28,16 +28,24 @@
 extern int read_ihx(const char * fname);
 extern int mc;
 
+int dataAdress = 0;
+
 int main(int argc, char** argv) {
   char fname[256];
   FILE* fin;
   int i, j, found;
   unsigned short paddr;
-  if (argc == 2) {
+  if (argc > 1) {
     strcpy(fname, argv[1]);
   } else {
     printf("enter the file name: ");
     scanf("%s", fname);
+  }
+  if (argc > 3) {
+    if (strcmp(argv[2], "-d") == 0) {
+      sscanf(argv[3], "%X", &dataAdress);
+      printf("Data starts at %04x\n", dataAdress);
+    }
   }
   fin = fopen(fname, "r");
   if (!fin) {
@@ -50,46 +58,50 @@ int main(int argc, char** argv) {
   paddr = mem[0].addr;
   for (i = 0; i < mc; i++) {
     //printf("%04X  %02X\n",mem[i].addr,mem[i].value);
-    if (mem[i].addr != paddr) {
-      printf("         ORG %04X\n", mem[i].addr);
-      paddr = mem[i].addr;
-    }
-    j = 0;
-    do {
-      if (opcode[j].opc == mem[i].value) {
-        printf("L%04X:   %s ", mem[i].addr, opcode[j].men);
-        if (opcode[j].nargs == 1) {
-          if (opcode[j].uargs == 0) printf("%s ", opcode[j].arg1);
-          else printf("%s, ", opcode[j].arg1);
-        }
-        if (opcode[j].nargs == 2) {
-          printf("%s, %s ", opcode[j].arg1, opcode[j].arg2);
-        }
-        if(opcode[j].uargs > 0) {
-          if (opcode[j].uargs == 2) {
-            char tmp[10];
-            sprintf(tmp, "0x%02X%02X", mem[i + 2].value, mem[i + 1].value);
-            unsigned int v = mem[i + 2].value * 256 + mem[i + 1].value;
-            found = -1;
-            for (int ix = 0; ix < numLabels; ix ++) {
-              if(mylabels[ix].value == v) {
-                printf("%s [%s]", mylabels[ix].name, tmp);
-                found = 0;
-                ix = numLabels + 1;
-              }
-            }
-            if (found == -1) printf("%s", tmp);
-          } else {
-            printf("0x%02X", mem[i + 1].value);
-          }
-        }
-        printf("\n");
-        i += opcode[j].uargs;
-        paddr += opcode[j].uargs + 1;
-        break;
+    if (dataAdress > 0 && mem[i].addr >= dataAdress) {
+      printf("L%04X:   DB 0x%02x [%c]\n", mem[i].addr, mem[i].value, mem[i].value < 32 ? '.' : (char)mem[i].value);
+    } else {
+      if (mem[i].addr != paddr) {
+        printf("         ORG %04X\n", mem[i].addr);
+        paddr = mem[i].addr;
       }
+      j = 0;
+      do {
+        if (opcode[j].opc == mem[i].value) {
+          printf("L%04X:   %s ", mem[i].addr, opcode[j].men);
+          if (opcode[j].nargs == 1) {
+            if (opcode[j].uargs == 0) printf("%s ", opcode[j].arg1);
+            else printf("%s, ", opcode[j].arg1);
+          }
+          if (opcode[j].nargs == 2) {
+            printf("%s, %s ", opcode[j].arg1, opcode[j].arg2);
+          }
+          if (opcode[j].uargs > 0) {
+            if (opcode[j].uargs == 2) {
+              char tmp[10];
+              sprintf(tmp, "0x%02X%02X", mem[i + 2].value, mem[i + 1].value);
+              unsigned int v = mem[i + 2].value * 256 + mem[i + 1].value;
+              found = -1;
+              for (int ix = 0; ix < numLabels; ix ++) {
+                if (mylabels[ix].value == v) {
+                  printf("%s [%s]", mylabels[ix].name, tmp);
+                  found = 0;
+                  ix = numLabels + 1;
+                }
+              }
+              if (found == -1) printf("%s", tmp);
+            } else {
+              printf("0x%02X", mem[i + 1].value);
+            }
+          }
+          printf("\n");
+          i += opcode[j].uargs;
+          paddr += opcode[j].uargs + 1;
+          break;
+        }
+      }
+      while (strcmp(opcode[j++].men, "ENDO") != 0);
     }
-    while (strcmp(opcode[j++].men, "ENDO") != 0);
   }
   return 1;
 }

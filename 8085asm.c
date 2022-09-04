@@ -192,9 +192,9 @@ int parse(char * line) {
     int nx, ny = strlen(tmp);
     for (nx = 0; nx < ny; nx++) {
       // printf(" . Adding char %c like it was `DB `%02x`, \n", tmp[nx], tmp[nx]);
-      addi++;
-      prg[addi] = tmp[nx];
+      prg[addi+nx] = tmp[nx];
     }
+    addi += (ny-1);
   }
   return 1;
 }
@@ -470,7 +470,7 @@ int main(int argc, char** argv) {
   sum = 0;
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
-    printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
+    // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
     if (nb == 0) {
       iaddr = mem[i].addr;
       sprintf(values, "%02X", mem[i].value);
