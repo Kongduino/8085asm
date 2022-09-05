@@ -84,7 +84,8 @@ LCGamboa 8085 assembler 2008
  DA22H  00H
 done!
 
-> 8085dasm test0.hex
+> 8085dasm test0.hex -s DA1A
+Data starts at da1a
 ;LCGamboa 8085 disassembler 2008
 
          ORG DA00
@@ -98,13 +99,14 @@ LDA10:   MOV A, M
 LDA11:   CALL LCD [0x4B44]
 LDA14:   CALL CHGET [0x12CB]
 LDA17:   JMP MENU [0x5797]
-LDA1A:   JMP 0x4954
-LDA1D:   MOV C, L 
-LDA1E:   MOV B, L 
-LDA1F:   RIM 
-LDA20:   DCR A 
-LDA21:   RIM 
-LDA22:   NOP 
+LDA1A:   DB 0x54 [T]
+LDA1B:   DB 0x49 [I]
+LDA1C:   DB 0x4d [M]
+LDA1D:   DB 0x45 [E]
+LDA1E:   DB 0x20 [ ]
+LDA1F:   DB 0x3d [=]
+LDA20:   DB 0x20 [ ]
+LDA21:   DB 0x00 [.]
 
 > hexdump -C test0.co
 00000000  21 1a da cd 58 5a 21 34  f9 7e cd 44 4b 21 33 f9  |!...XZ!4.~.DK!3.|
