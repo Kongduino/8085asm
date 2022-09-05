@@ -28,24 +28,45 @@
 extern int read_ihx(const char * fname);
 extern int mc;
 
-int dataAdress = 0;
-
 int main(int argc, char** argv) {
   char fname[256];
   FILE* fin;
   int i, j, found;
+  int dataAdress = 0;
   unsigned short paddr;
-  if (argc > 1) {
-    strcpy(fname, argv[1]);
-  } else {
-    printf("enter the file name: ");
-    scanf("%s", fname);
-  }
-  if (argc > 3) {
-    if (strcmp(argv[2], "-d") == 0) {
-      sscanf(argv[3], "%X", &dataAdress);
-      printf("Data starts at %04x\n", dataAdress);
+  int nameSet = 0;
+  int b, e;
+  size_t optind = 1;
+  while (optind < argc && argv[optind][0] == '-') {
+    // printf("arg: %s\n", argv[optind]);
+    switch (argv[optind][1]) {
+      case 'd':
+        // printf("param: %s\n", argv[optind+1]);
+        sscanf(argv[optind + 1], "%X", &dataAdress);
+        printf("Data starts at 0x%04x\n", dataAdress);
+        optind += 2;
+        break;
+      case 'x':
+        // printf("param: %s\n", argv[optind+1]);
+        sscanf(argv[optind + 1], "%X:%X", &b, &e);
+        printf("Data from 0x%04x to 0x%04x\n", b, e);
+        optind += 2;
+        break;
+      case 'f':
+        // printf("param: %s\n", argv[optind+1]);
+        strcpy(fname, argv[optind + 1]);
+        printf("File name: %s\n", fname);
+        nameSet = 1;
+        optind += 2;
+        break;
+      default:
+        fprintf(stderr, "Usage: %s [-s addr] [-f file...]\n", argv[0]);
+        exit(-1);
     }
+  }
+  if (nameSet == 0) {
+    printf("Enter the file name: ");
+    scanf("%s", fname);
   }
   fin = fopen(fname, "r");
   if (!fin) {

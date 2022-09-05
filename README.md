@@ -137,3 +137,9 @@ LXI H, 0x00F0
 MVI A, 0x0C
 LXI H, 0x04D2
 ```
+
+I've modified the arguments passed to `8085dasm`:
+
+* `-f filename` to pass the name of the file to be disassembled. If you don't the code will ask again before aborting.
+* `-d da00` Address of the data segment's start. Anything from this address onwards will be treated as `DB xx`.
+Another option, `-x da00:da22`, which can be repeated multiple times, is being built: it will allow the user to set several ranges of addresses, like here from `0xda00` to `0xda22`, to be treated as data. This doesn't work yet. It will be mutually exclusive with the `-d` option.
