@@ -57,3 +57,9 @@ LDAE0:   DB 0x00 [.]
 ```
 
 This could, and should, be improved by passing intervals. But as of now it works.
+
+## TODO
+
+* Detect unknown labels.
+* Better arguments parsing.
+* Data intervals: -d DADA-DADF -d DD00-DDFF
