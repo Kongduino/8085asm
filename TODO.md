@@ -56,5 +56,4 @@ LDADF:   DB 0x20 [ ]
 LDAE0:   DB 0x00 [.]
 ```
 
-This could be improved by passing intervals. But as of now it works.
-
+This could, and should, be improved by passing intervals. But as of now it works.
