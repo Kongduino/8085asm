@@ -131,7 +131,7 @@ LXI H, 1234
 will look like this:
  
 ```asm
-LDA1A:   LXI H, 0x00F0
-LDA1D:   MVI A, 0x0C
-LDA1F:   LXI H, 0x04D2
+LXI H, 0x00F0
+MVI A, 0x0C
+LXI H, 0x04D2
 ```
