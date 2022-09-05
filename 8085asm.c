@@ -6,7 +6,7 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
    any later version.
-   This program is distributed in the hope that it will be useful, 
+   This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -41,6 +41,51 @@ int labelsc = 0;
 int pass;
 int memc;
 
+int parseNumber(char *arg) {
+  int n0 = 0, n1 = 0, n2 = 0, myValue = 0;
+  if (arg[0] == '0' && (arg[1] == 'x' || arg[1] == 'X'))
+    n0 = 1;
+  if (arg[strlen(arg) - 1] == 'h' || arg[strlen(arg) - 1] == 'H')
+    n1 = 1;
+  if (arg[0] == '0' && (arg[1] == 'b' || arg[1] == 'B'))
+    n2 = 1;
+  if (n0 == 1) {
+    sscanf(arg, "%X", &myValue);
+    // printf("[n0] myValue = 0x%04x\n", myValue);
+    return myValue;
+  }
+  if (n1 == 1 && n0 == 0) {
+    arg[strlen(arg) - 1] = 0;
+    sscanf(arg, "%X", &myValue);
+    // printf("[n1] myValue = 0x%04x\n", myValue);
+    return myValue;
+  }
+  if (n1 == 0 && n0 == 0 && n2 == 1) {
+    unsigned int z, y = strlen(arg);
+    myValue = 0;
+    for (z = 2; z < y; z++) {
+      if (arg[z] != '0' && arg[z] != '1') {
+        // printf("Bad format!");
+        break;
+      }
+      myValue = (myValue << 1) | (arg[z] == '0' ? 0 : 1);
+    }
+    // printf("[n2] myValue = 0x%04x\n", myValue);
+    return myValue;
+  }
+  unsigned int z, y = strlen(arg);
+  myValue = 0;
+  for (z = 0; z < y; z++) {
+    if (arg[z] < '0' || arg[z] > '9') {
+      // printf("Bad format!");
+      return -1;
+    }
+    myValue = (myValue * 10) + (arg[z] - '0');
+  }
+  // printf("[dec] myValue = 0x%04x\n", myValue);
+  return myValue;
+}
+
 int parsearg(char* arg, char * line) {
   int i;
   if (arg == NULL) {
@@ -52,8 +97,9 @@ int parsearg(char* arg, char * line) {
       return labels[i].value;
     };
   }
-  sscanf(arg, "%X", &i);
-  return i;
+  // sscanf(arg, "%X", &i);
+  // return i;
+  return parseNumber(arg);
 };
 
 int parse(char * line) {
@@ -178,6 +224,31 @@ int parse(char * line) {
       ucase(arg1);
       addi++;
       prg[addi] = parsearg(arg1, line);
+      arg1 = strtok(NULL, " \t:, \n");
+    }
+    return 1;
+  }
+  if (strcmp("DW", men) == 0) {
+    addi = 0;
+    unsigned int tb = parsearg(arg1, line);
+    prg[addi] = (unsigned char)(tb & 0xFF);
+    addi++;
+    prg[addi] = (unsigned char)((tb & 0xFF00) >> 8);
+    if (arg2 != NULL) {
+      addi++;
+      tb = parsearg(arg2, line);
+      prg[addi] = (unsigned char)(tb & 0xFF);
+      addi++;
+      prg[addi] = (unsigned char)((tb & 0xFF00) >> 8);
+    }
+    arg1 = strtok(NULL, " \t:, \n");
+    while (arg1 != NULL) {
+      ucase(arg1);
+      addi++;
+      tb = parsearg(arg1, line);
+      prg[addi] = (unsigned char)(tb & 0xFF);
+      addi++;
+      prg[addi] = (unsigned char)((tb & 0xFF00) >> 8);
       arg1 = strtok(NULL, " \t:, \n");
     }
     return 1;
