@@ -19,7 +19,8 @@ In between, it seems to work:
 ## UPDATES
 
 **2022/09/04**
-I added the known function and variable names to the compiler as labels, and they are recognized without the help of `EQU`s. A simple test code like this compiles as follows. I also added the creation of a plain binary file, with the `.co` extension.
+
+I've added the known function and variable names to the compiler as labels, and they are recognized without the help of `EQU`s. A simple test code like this compiles as follows. I also added the creation of a plain binary file, with the `.co` extension.
 
 ```asm
 	ORG 0xDA00
@@ -97,15 +98,13 @@ LDA10:   MOV A, M
 LDA11:   CALL LCD [0x4B44]
 LDA14:   CALL CHGET [0x12CB]
 LDA17:   JMP MENU [0x5797]
-LDA1A:   DB 0x54 [T]
-LDA1B:   DB 0x49 [I]
-LDA1C:   DB 0x4d [M]
-LDA1D:   DB 0x45 [E]
-LDA1E:   DB 0x20 [ ]
-LDA1F:   DB 0x3d [=]
-LDA20:   DB 0x20 [ ]
-LDA21:   DB 0x00 [.]
-
+LDA1A:   JMP 0x4954
+LDA1D:   MOV C, L 
+LDA1E:   MOV B, L 
+LDA1F:   RIM 
+LDA20:   DCR A 
+LDA21:   RIM 
+LDA22:   NOP 
 
 > hexdump -C test0.co
 00000000  21 1a da cd 58 5a 21 34  f9 7e cd 44 4b 21 33 f9  |!...XZ!4.~.DK!3.|
@@ -113,4 +112,26 @@ LDA21:   DB 0x00 [.]
 00000020  3d 20 00                                          |= .             |
 ```
 
-DS has been fixed. I need to add DW.
+DS has been fixed.
+
+**2022/09/05**
+
+I've added DW (Define Word), so you can now add little-endian 16-bit numbers. So `DW 1234,5678` will insert `34, 12, 78, 56`.
+
+**Except that** I have also added number parsing for binary (`0b........` or `0B........`), decimal, and hexadecimal (`0x....`, `0X....`, or `....H`). So if you do `DW 1234` it'll insert `D2, 04`, as 1234 is `0x04D2`.
+
+Once assembled and disassembled, the following code:
+
+```asm
+LXI H, 0B11110000
+MVI A, 12
+LXI H, 1234
+```
+
+will look like this:
+ 
+```asm
+LDA1A:   LXI H, 0x00F0
+LDA1D:   MVI A, 0x0C
+LDA1F:   LXI H, 0x04D2
+```
