@@ -1,0 +1,121 @@
+LCGamboa 8085 assembler 2008
+
+    0                           ==> ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    1                           ==> ;Soma.asm - soma de numeros em hexadecimal
+    2                           ==> ;Prof. Roberto M. Ziller - 04.01.2000
+    3                           ==> ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    4                           ==>         ORG 2000H
+    5     2000    3A 22 20      ==>         LDA N           
+    6     2003    4F            ==>         MOV C,A         
+    7     2004    21 23 20      ==>         LXI H,DADOS     
+    8     2007    06 00         ==>         MVI B,00H       
+    9     2009    7E            ==> LOOP:   MOV A,M         
+   10     200A    80            ==>         ADD B           
+   11     200B    47            ==>         MOV B,A         
+   12     200C    23            ==>         INX H           
+   13     200D    0D            ==>         DCR C           
+   14     200E    C2 09 20      ==>         JNZ LOOP        
+   15     2011    21 20 20      ==>         LXI H,RESULT    
+   16     2014    70            ==>         MOV M,B         
+   17     2015    C3 04 00      ==>         JMP $           
+   18                           ==>         ORG 2020H
+   19     2020    00 00         ==> RESULT  DB 00H,00H
+   20     2022    03            ==> N       DB 03H
+   21     2023    01 02 03 04 65 76 87 98 A9   ==> DADOS   DB 01H,02H,03H,04H,65H,76H,87H,98H,A9H
+   22                           ==>         END
+   23                           ==> 
+
+
+SYMBOLIC TABLE:
+
+ LOOP        2009H
+ RESULT      2020H
+ N           2022H
+ DADOS       2023H
+ DISPLAY     5A58H
+ LCD         4B44H
+ CHGET       12CBH
+ MENU        5797H
+ UNPLOT      744CH
+ PLOT        744DH
+ POSIT       4D7CH
+ ESCA        4270H
+ CRLF        4222H
+ HOME        422DH
+ CLS         4231H
+ SETSYS      4235H
+ RSTSYS      423AH
+ LOCK        423FH
+ UNLOCK      4244H
+ CURSON      4249H
+ CUROFF      424EH
+ DELLIN      4253H
+ INSLIN      4258H
+ ERAEOL      425DH
+ ENTREV      4269H
+ EXTREV      426EH
+ KYREAD      7242H
+ CHGET       12CBH
+ STFNK       5A7CH
+ CLRFNK      5A79H
+ FNKSB       5A9EH
+ DSPFNK      42A5H
+ ERAFNK      428AH
+ CHSNS       13DBH
+ KEYX        7270H
+ BRKCHK      7283H
+ INLIN       4644H
+ PRINTR      6D3FH
+ PNOTAB      1470H
+ PRTTAB      4B55H
+ PRTLCD      1E5EH
+ DISC        52BBH
+ CONN        52D0H
+ DIAL        532DH
+ RCVX        6D6DH
+ RV232C      6D7EH
+ SD232C      6E32H
+ SENDCQ      6E0BH
+ SENDCS      6E1EH
+ CARDET      6EEFH
+ BAUDST      6E75H
+ INZCOM      6EA6H
+ CLSCOM      6ECBH
+ DATAR       702AH
+ DATAW       6F5BH
+ CTON        14A8H
+ CTOF        14AAH
+ CASIN       14B0H
+ CSOUT       14C1H
+ SYNCW       6F46H
+ SYNCR       6F85H
+ MAKTXT      220FH
+ FILNAM      FC93H
+ CHKDC       5AA9H
+ GTXTTB      5AE3H
+ KILASC      1FBEH
+ INSCHR      6B61H
+ MAKHOL      6B6DH
+ MASDEL      6B9FH
+ INITIO      6CD6H
+ IOINIT      6CE0H
+ MUSIC       72C5H
+ TIME        190FH
+ DATE        192FH
+ DAY         1962H
+ SECS0       F933H
+ SECS1       F934H
+ CSRY        F639H
+ CSRX        F63AH
+ BEGLCD      FE00H
+ ENDLCD      FF40H
+ STAT        F65BH
+ DIRTBL      F962H
+
+
+MEM  (36 bytes):
+
+:102000003A22204F21232006007E8047230DC2095B
+:082010002021202070C3040010
+:0C2020000000030102030465768798A904
+:00000001FF

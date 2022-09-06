@@ -1,0 +1,58 @@
+LCGamboa 8085 assembler 2008
+
+    0                           ==> ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    1                           ==> ;Mult.asm - Multiplicacao de numeros de dois digitos
+    2                           ==> ;Prof. Roberto M. Ziller - 04.01.2000
+    3                           ==> ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    4                           ==> LETECLA EQU 02E7H       
+    5                           ==> MOSTRAD EQU 0363H       
+    6                           ==>         ORG 2000H       
+    7     2000    31 C0 20      ==> INICIO: LXI SP,20C0H    
+    8     2003    CD 14 20      ==> LOOP0:  CALL LE_DADO    
+    9     2006    47            ==>         MOV B,A         
+   10     2007    CD 14 20      ==>         CALL LE_DADO    
+   11     200A    4F            ==>         MOV C,A         
+   12     200B    CD 21 20      ==>         CALL MULT       
+   13     200E    CD 63 03      ==>         CALL MOSTRAD    
+   14     2011    C3 03 20      ==>         JMP LOOP0       
+   15                           ==> 
+   16     2014    CD E7 02      ==> LE_DADO:CALL LETECLA    
+   17     2017    07            ==>         RLC
+   18     2018    07            ==>         RLC
+   19     2019    07            ==>         RLC
+   20     201A    07            ==>         RLC             
+   21     201B    5F            ==>         MOV E,A         
+   22     201C    CD E7 02      ==>         CALL LETECLA    
+   23     201F    B3            ==>         ORA E           
+   24     2020    C9            ==>         RET             
+   25     2021    16 00         ==> MULT:   MVI D,00        
+   26     2023    3E 00         ==>         MVI A,00
+   27     2025    80            ==> LOOP1:  ADD B           
+   28     2026    D2 2A 20      ==>         JNC CONT        
+   29     2029    14            ==>         INR D           
+   30     202A    0D            ==> CONT:   DCR C 
+   31     202B    C2 25 20      ==>         JNZ LOOP1       
+   32     202E    5F            ==>         MOV E,A         
+   33     202F    C9            ==>         RET             
+   34                           ==> 
+   35                           ==>         END
+
+
+SYMBOLIC TABLE:
+
+ LETECLA     02E7H
+ MOSTRAD     0363H
+ INICIO      2000H
+ LOOP0       2003H
+ LE_DADO     2014H
+ MULT        2021H
+ LOOP1       2025H
+ CONT        202AH
+
+
+MEM  (48 bytes):
+
+:1020000031C020CD142047CD14204FCD2120CD63E9
+:1020100003C30320CDE702070707075FCDE702B33D
+:10202000C916003E0080D22A20140DC225205FC9A7
+:00000001FF

@@ -13,7 +13,6 @@ LOOP0:  CALL LE_DADO    ; leitura de N1 (acumulador)
         CALL MULT       ; DE = C * B
         CALL MOSTRAD    ; apresenta resultado
         JMP LOOP0       ; reinicia
-
 LE_DADO:CALL LETECLA    ; le o digito mais significativo
         RLC
         RLC
@@ -32,5 +31,4 @@ CONT:   DCR C
         JNZ LOOP1       ; repete a soma N2 vezes
         MOV E,A         ; transfere o resultado para E
         RET             ; retorno com resultado no par DE
-
         END

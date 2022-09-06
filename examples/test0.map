@@ -1,0 +1,108 @@
+LCGamboa 8085 assembler 2008
+
+    0                           ==> 	ORG 0xDA00
+    1     DA00    21 1A DA      ==> BEGIN:		LXI H, MESSAGE 
+    2     DA03    CD 58 5A      ==> 			CALL DISPLAY       
+    3     DA06    21 34 F9      ==> 			LXI H, SECS1 
+    4     DA09    7E            ==> 			MOV A, M
+    5     DA0A    CD 44 4B      ==> 			CALL LCD
+    6     DA0D    21 33 F9      ==> 			LXI H, SECS0
+    7     DA10    7E            ==> 			MOV A, M
+    8     DA11    CD 44 4B      ==> 			CALL LCD
+    9     DA14    CD CB 12      ==> 			CALL CHGET
+   10     DA17    C3 97 57      ==> 			JMP MENU
+   11     DA1A    54 49 4D 45 20 3D 20   ==> MESSAGE:	DS "TIME = "
+   12     DA21    00            ==> 			DB 0
+
+
+SYMBOLIC TABLE:
+
+ DISPLAY     5A58H
+ LCD         4B44H
+ CHGET       12CBH
+ MENU        5797H
+ UNPLOT      744CH
+ PLOT        744DH
+ POSIT       4D7CH
+ ESCA        4270H
+ CRLF        4222H
+ HOME        422DH
+ CLS         4231H
+ SETSYS      4235H
+ RSTSYS      423AH
+ LOCK        423FH
+ UNLOCK      4244H
+ CURSON      4249H
+ CUROFF      424EH
+ DELLIN      4253H
+ INSLIN      4258H
+ ERAEOL      425DH
+ ENTREV      4269H
+ EXTREV      426EH
+ KYREAD      7242H
+ CHGET       12CBH
+ STFNK       5A7CH
+ CLRFNK      5A79H
+ FNKSB       5A9EH
+ DSPFNK      42A5H
+ ERAFNK      428AH
+ CHSNS       13DBH
+ KEYX        7270H
+ BRKCHK      7283H
+ INLIN       4644H
+ PRINTR      6D3FH
+ PNOTAB      1470H
+ PRTTAB      4B55H
+ PRTLCD      1E5EH
+ DISC        52BBH
+ CONN        52D0H
+ DIAL        532DH
+ RCVX        6D6DH
+ RV232C      6D7EH
+ SD232C      6E32H
+ SENDCQ      6E0BH
+ SENDCS      6E1EH
+ CARDET      6EEFH
+ BAUDST      6E75H
+ INZCOM      6EA6H
+ CLSCOM      6ECBH
+ DATAR       702AH
+ DATAW       6F5BH
+ CTON        14A8H
+ CTOF        14AAH
+ CASIN       14B0H
+ CSOUT       14C1H
+ SYNCW       6F46H
+ SYNCR       6F85H
+ MAKTXT      220FH
+ FILNAM      FC93H
+ CHKDC       5AA9H
+ GTXTTB      5AE3H
+ KILASC      1FBEH
+ INSCHR      6B61H
+ MAKHOL      6B6DH
+ MASDEL      6B9FH
+ INITIO      6CD6H
+ IOINIT      6CE0H
+ MUSIC       72C5H
+ TIME        190FH
+ DATE        192FH
+ DAY         1962H
+ SECS0       F933H
+ SECS1       F934H
+ CSRY        F639H
+ CSRX        F63AH
+ BEGLCD      FE00H
+ ENDLCD      FF40H
+ STAT        F65BH
+ DIRTBL      F962H
+ BEGIN       DA00H
+ MESSAGE     DA1AH
+
+
+MEM  (34 bytes):
+
+:10DA0000211ADACD585A2134F97ECD444B2133F90D
+:10DA10007ECD444BCDCB12C3975754494D45203D45
+:02DA20002000E4
+:00000001FF
