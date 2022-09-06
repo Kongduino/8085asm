@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stddef.h>
 #include <ctype.h>
 #include "8085asm.h"

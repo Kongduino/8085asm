@@ -1,7 +1,8 @@
 /* ########################################################################
    8085asm - Simple 8085 assembler and disassembler
    ########################################################################
-   Copyright (c) : 2009  Luis Claudio Gambôa Lopes
+   Copyright (c):	2009 Luis Claudio Gamboa Lopes
+   					2022 Kongduino for this version
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -13,7 +14,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-   For e-mail suggestions :  lcgamboa@yahoo.com
+   For e-mail suggestions:	lcgamboa@yahoo.com for the original version
+   							kongduino@protonmail.com for this version
    ######################################################################## */
 
 typedef struct {
@@ -32,7 +34,7 @@ Symbol labels[250];
 
 /*
      Code below is based in file asm-id.c of GNUSim8085 - http://gnusim8085.sourceforge.net/
-       Copyright (C) 2003  Sridhar Ratnakumar <srid@nearfar.org>
+       Copyright (C) 2003 Sridhar Ratnakumar <srid@nearfar.org>
        This file is part of GNUSim8085.
        GNUSim8085 is free software; you can redistribute it and/or modify
        it under the terms of the GNU General Public License as published by
@@ -44,16 +46,16 @@ Symbol labels[250];
        GNU General Public License for more details.
        You should have received a copy of the GNU General Public License
        along with GNUSim8085; if not, write to the Free Software
-       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *     */
 
 typedef struct {
-  int  opc;
+  int opc;
   char men[5];
-  int  nargs;
+  int nargs;
   char arg1[4];
   char arg2[4];
-  int  uargs; /* 0 - no arg, 1 - byte, 2 - word */
+  int uargs; /* 0 - no arg, 1 - byte, 2 - word */
 } Opcode;
 
 static Opcode opcode[] = {
