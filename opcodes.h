@@ -1,31 +1,30 @@
 /*
- *
- *   Code below is based in file asm-id.c of GNUSim8085 - http://gnusim8085.sourceforge.net/
- *
- *     Copyright (C) 2003  Sridhar Ratnakumar <srid@nearfar.org>
- *
- *     This file is part of GNUSim8085.
- *
- *     GNUSim8085 is free software; you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation; either version 2 of the License, or
- *     (at your option) any later version.
- *
- *     GNUSim8085 is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with GNUSim8085; if not, write to the Free Software
- *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *     */
+     Code below is based in file asm-id.c of GNUSim8085 - http://gnusim8085.sourceforge.net/
+
+       Copyright (C) 2003  Sridhar Ratnakumar <srid@nearfar.org>
+
+       This file is part of GNUSim8085.
+
+       GNUSim8085 is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; either version 2 of the License, or
+       (at your option) any later version.
+
+       GNUSim8085 is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
+
+       You should have received a copy of the GNU General Public License
+       along with GNUSim8085; if not, write to the Free Software
+       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 
 static Opcode opcode[] = {
-  /* 
-   * { 0x, "", 0, " ", " " }, 
-   */
+  /*
+     { 0x, "", 0, " ", " " },
+  */
   {0xCE, "ACI", 0, " ", " ", 1, "ADC A,", "", ""},
   {0x8F, "ADC", 1, "A", " ", 0, "ADC A,", "", ""},
   {0x88, "ADC", 1, "B", " ", 0, "ADC A,", "", ""},
@@ -74,10 +73,10 @@ static Opcode opcode[] = {
   {0xE4, "CPO", 0, "M", " ", 2, "CALL PO,", "", ""},
   {0xCC, "CZ", 0, "M", " ", 2, "CALL Z,", "", ""},
   {0x27, "DAA", 0, "M", " ", 0, "DAA", "", ""},
-  {0x09, "DAD", 1, "B", " ", 0, "ADD","HL,BC", ""},
-  {0x19, "DAD", 1, "D", " ", 0, "ADD","HL,DE", ""},
-  {0x29, "DAD", 1, "H", " ", 0, "ADD","HL,HL", ""},
-  {0x39, "DAD", 1, "SP", " ", 0, "ADD","HL,SP", ""},
+  {0x09, "DAD", 1, "B", " ", 0, "ADD", "HL,BC", ""},
+  {0x19, "DAD", 1, "D", " ", 0, "ADD", "HL,DE", ""},
+  {0x29, "DAD", 1, "H", " ", 0, "ADD", "HL,HL", ""},
+  {0x39, "DAD", 1, "SP", " ", 0, "ADD", "HL,SP", ""},
   {0x3D, "DCR", 1, "A", " ", 0, "DEC", "", ""},
   {0x05, "DCR", 1, "B", " ", 0, "DEC", "", ""},
   {0x0D, "DCR", 1, "C", " ", 0, "DEC", "", ""},
@@ -251,7 +250,7 @@ static Opcode opcode[] = {
   {0x32, "STA", 0, "M", " ", 2, "LD", "#(%s),A", ""},
   {0x02, "STAX", 1, "B", " ", 0, "LD (BC),", "A", ""},
   {0x12, "STAX", 1, "D", " ", 0, "LD (DE),", "A", ""},
-  {0x37, "STC", 0, "M", " ", 0, "SCF", "", ""},			 
+  {0x37, "STC", 0, "M", " ", 0, "SCF", "", ""},
   {0x97, "SUB", 1, "A", " ", 0, "SUB", "", ""},
   {0x90, "SUB", 1, "B", " ", 0, "SUB", "", ""},
   {0x91, "SUB", 1, "C", " ", 0, "SUB", "", ""},
@@ -272,5 +271,5 @@ static Opcode opcode[] = {
   {0xAE, "XRA", 1, "M", " ", 0, "XOR", "(HL)", ""},
   {0xEE, "XRI", 0, "M", " ", 1, "XOR", "", ""},
   {0xE3, "XTHL", 0, "M", " ", 0, "EX (SP),HL", "", ""},
-  {0xFF, "ENDO", 0, " ", " ", 0,"","", ""}  //fim da tabela
+  {0xFF, "ENDO", 0, " ", " ", 0, "", "", ""} // End of table
 };
