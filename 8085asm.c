@@ -427,19 +427,15 @@ int main(int argc, char** argv) {
         fprintf(fout, "  ==> %s\n", line);
         addr += 1 + addi;
       } else {
-        if (strtok(line, "\n\r") != NULL)
-          fprintf(fout, "%5i                           ==> %s\n", lc, line);
-        else
-          fprintf(fout, "%5i                           ==> \n", lc);
+        if (strtok(line, "\n\r") != NULL) fprintf(fout, "%5i                           ==> %s\n", lc, line);
+        else fprintf(fout, "%5i                           ==> \n", lc);
       }
     }
     lc++;
   }
   fprintf(fout, "\n\nSYMBOLIC TABLE:\n\n");
   printf("   Saving SYMBOLIC TABLE.\n");
-  for (i = 0; i < labelsc; i++) {
-    fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
-  }
+  for (i = 0; i < labelsc; i++) fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
   fprintf(fout, "\n\nMEM  (%i bytes):\n\n", memc);
   printf("* RAM occupied:  (%i bytes):\n", memc);
   strcpy(fname2, fnamep);
@@ -485,6 +481,6 @@ int main(int argc, char** argv) {
   fclose(fout);
   fclose(fout2);
   fclose(fout3);
-  printf("%s!\n\n\n", "done");
+  printf("%s\n\n\n", "All done!");
   return 1;
 }
