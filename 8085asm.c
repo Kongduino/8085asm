@@ -487,7 +487,7 @@ int main(int argc, char** argv) {
       fprintf(fout4, "%c", ',');
       sprintf(values, "%s%02X", values, mem[i].value);
     }
-    fprintf(fout4, "%02X", mem[i].value);
+    fprintf(fout4, "%d", mem[i].value);
     nb++;
     sum += mem[i].value;
     if ((mem[i + 1].addr != (mem[i].addr + 1)) || (nb == 16)) {

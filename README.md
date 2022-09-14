@@ -124,9 +124,9 @@ Another option, `-x da00:da22`, which can be repeated multiple times, is being b
 17 CALL 55808
 18 END
 
-19 DATA 21,1A,DA,CD,58,5A,21,34,F9,7E,CD,44,4B,21,33,F9
-20 DATA 7E,CD,44,4B,CD,CB,12,C3,97,57,54,49,4D,45,20,3D
-21 DATA 20,00,D2,04,2E,16,B8,22
+19 DATA 33,26,218,205,88,90,33,52,249,126,205,68,75,33,51,249
+20 DATA 126,205,68,75,205,203,18,195,151,87,84,73,77,69,32,61
+21 DATA 32,0,210,4,46,22,184,34
 ```
 
 This should make it easier to load ASM code.
