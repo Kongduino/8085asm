@@ -277,6 +277,7 @@ int main(int argc, char** argv) {
   char fname[256];
   char fname2[256];
   char fname3[256];
+  char fname4[256];
   FILE* fin;
   char line[256];
   int i;
@@ -288,6 +289,7 @@ int main(int argc, char** argv) {
   FILE *fout;
   FILE *fout2;
   FILE *fout3;
+  FILE *fout4;
   if (argc == 2) {
     strcpy(fname, argv[1]);
   } else {
@@ -306,6 +308,8 @@ int main(int argc, char** argv) {
   strcat(fname2, ".map");
   strcpy(fname3, fnamep);
   strcat(fname3, ".co");
+  strcpy(fname4, fnamep);
+  strcat(fname4, ".do");
   printf("* Saving %s:\n", fname2);
   fout = fopen(fname2, "w");
   if (!fout) {
@@ -443,7 +447,7 @@ int main(int argc, char** argv) {
   printf("* RAM occupied:  (%i bytes):\n", memc);
   strcpy(fname2, fnamep);
   strcat(fname2, ".hex");
-  printf("* Saving %s and %s:\n", fname2, fname3);
+  printf("* Saving %s, %s and %s:\n", fname2, fname3, fname4);
   fout2 = fopen(fname2, "w");
   if (!fout2) {
     printf("Error opening file: %s\n", fname2);
@@ -454,17 +458,36 @@ int main(int argc, char** argv) {
     printf("Error opening file: %s\n", fname3);
     return -1;
   }
+  fout4 = fopen(fname4, "w");
+  if (!fout4) {
+    printf("Error opening file: %s\n", fname4);
+    return -1;
+  }
   nb = 0;
   sum = 0;
+  iaddr = mem[0].addr;
+  fprintf(fout4, "10 AD = %d\n", iaddr);
+  int lineNum = 11;
+  fprintf(fout4, "%d N = %d\n", lineNum++, memc);
+  fprintf(fout4, "%d FOR I = 1 TO N\n", lineNum++);
+  fprintf(fout4, "%d READ X\n", lineNum++);
+  fprintf(fout4, "%d POKE AD,X\n", lineNum++);
+  fprintf(fout4, "%d AD=AD+1\n", lineNum++);
+  fprintf(fout4, "%d NEXT I\n", lineNum++);
+  fprintf(fout4, "%d CALL %d\n", lineNum++, iaddr);
+  fprintf(fout4, "%d END\n", lineNum++);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
     if (nb == 0) {
       iaddr = mem[i].addr;
       sprintf(values, "%02X", mem[i].value);
+      fprintf(fout4, "\n%d DATA ", lineNum++);
     } else {
+      fprintf(fout4, "%c", ',');
       sprintf(values, "%s%02X", values, mem[i].value);
     }
+    fprintf(fout4, "%02X", mem[i].value);
     nb++;
     sum += mem[i].value;
     if ((mem[i + 1].addr != (mem[i].addr + 1)) || (nb == 16)) {
@@ -479,11 +502,14 @@ int main(int argc, char** argv) {
       sum = 0;
     }
   }
+  fprintf(fout4, "%c", 0x0a);
+  fprintf(fout4, "%c", 0x1a);
   fprintf(fout2, ":00000001FF\n");
   fprintf(fout, ":00000001FF\n");
   fclose(fout);
   fclose(fout2);
   fclose(fout3);
+  fclose(fout4);
   printf("%s\n\n\n", "All done!");
   return 1;
 }

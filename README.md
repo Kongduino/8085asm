@@ -108,3 +108,25 @@ I've modified the arguments passed to `8085dasm`:
 * `-f filename` to pass the name of the file to be disassembled. If you don't the code will ask again before aborting.
 * `-d da00` Address of the data segment's start. Anything from this address onwards will be treated as `DB xx`.
 Another option, `-x da00:da22`, which can be repeated multiple times, is being built: it will allow the user to set several ranges of addresses, like here from `0xda00` to `0xda22`, to be treated as data. This doesn't work yet. It will be mutually exclusive with the `-d` option.
+
+**2022/09/14**
+
+`8085asm` now also produces a BASIC program that loads the ASM and runs it for you:
+
+```BASIC
+10 AD = 55808
+11 N = 40
+12 FOR I = 1 TO N
+13 READ X
+14 POKE AD,X
+15 AD=AD+1
+16 NEXT I
+17 CALL 55808
+18 END
+
+19 DATA 21,1A,DA,CD,58,5A,21,34,F9,7E,CD,44,4B,21,33,F9
+20 DATA 7E,CD,44,4B,CD,CB,12,C3,97,57,54,49,4D,45,20,3D
+21 DATA 20,00,D2,04,2E,16,B8,22
+```
+
+This should make it easier to load ASM code.
