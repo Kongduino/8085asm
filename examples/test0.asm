@@ -11,23 +11,44 @@ BEGIN:		CALL CLS
 			CALL DISPLAY
 			LXI H, VGREET
 			CALL DISPLAY
-LOOP:			CALL CHGET
-			CP A, 81 ; Q
-			JP Z,THEEND
-			CP A, 113 ; q
-			JP Z,THEEND
-			JP LOOP
-			CP A, 80 ; P
-			JP Z, PING
-			CP A, 112 ; P
-			JP Z, PING
-			JP LOOP
-PING:	LD A,1
+			MVI A,1
 			LXI H,CSRX
-			LD M,A
+			MOV M,A
 			LXI H,CSRY
-			LD A,5
-			LD M,A
+			MVI A,4
+			MOV M,A
+			LXI H, STAT
+			MOV A,M
+			CALL LCD
+			INX H
+			MOV A,M
+			CALL LCD
+			INX H
+			MOV A,M
+			CALL LCD
+			INX H
+			MOV A,M
+			CALL LCD
+			INX H
+			MOV A,M
+			CALL LCD
+LOOP:			CALL CHGET
+			CPI 81 ; Q
+			JZ,THEEND
+			CPI 113 ; q
+			JZ,THEEND
+			JP LOOP
+			CPI 80 ; P
+			JZ, PING
+			CPI 112 ; P
+			JZ, PING
+			JP LOOP
+PING:	MVI A,1
+			LXI H,CSRX
+			MOV M,A
+			LXI H,CSRY
+			MVI A,5
+			MOV M,A
 			LXI H,NPING
 			CALL DISPLAY
 			JP LOOP
