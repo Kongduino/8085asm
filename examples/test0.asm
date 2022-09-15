@@ -1,16 +1,29 @@
 	ORG 0xDA00
-BEGIN:	CALL HOME
-			CALL CLS
-			LXI H, MESSAGE ;set HL pointer to start of message data
-			CALL DISPLAY       ;display message
-			LXI H, SECS1 ; SECS+1 = 0xF933+1 = 0xF934
-			MOV A, M
-			CALL LCD
-			LXI H, SECS0
-			MOV A, M
-			CALL LCD
+BEGIN:		CALL CLS
+			CALL HOME
+			LXI H, VTIME
+			CALL TIME
+			LXI H, VDATE
+			CALL DATE
+			LXI H, VDAY
+			CALL DAY
+			LXI H, VDATE
+			CALL DISPLAY
 			CALL CHGET
+			CALL INZCOM
+			LXI H,RSMSG
+LOOP0:		LD A,M
+			JP Z,THEEND
+			CALL SD232C
+			INX H
+			JP LOOP0
+THEEND:		CALL CLSCOM
 			CALL MENU
-			END
-MESSAGE:	DS "TIME = "
-			DB 0
+VDATE:	DS "yy/mm/dd ("
+VDAY:	DS "ddd) "
+VTIME:	DS "hh:mm:ss "
+	DB 13,10
+	DS "ENTER KEY:"
+	DB 0
+RSMSG: DS "Hello"
+	DB 0
