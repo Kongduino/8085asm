@@ -388,6 +388,7 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "SECS1"); labels[labelsc++].value = 0xF934;
   strcpy(labels[labelsc].nome, "SENDCQ"); labels[labelsc++].value = 0x6E0B;
   strcpy(labels[labelsc].nome, "SENDCS"); labels[labelsc++].value = 0x6E1E;
+  strcpy(labels[labelsc].nome, "SETSER"); labels[labelsc++].value = 0x17E6;
   strcpy(labels[labelsc].nome, "SETSYS"); labels[labelsc++].value = 0x4235;
   strcpy(labels[labelsc].nome, "STAT"); labels[labelsc++].value = 0xF65B;
   strcpy(labels[labelsc].nome, "STFNK"); labels[labelsc++].value = 0x5A7C;

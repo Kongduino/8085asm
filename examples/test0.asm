@@ -9,7 +9,8 @@ BEGIN:		CALL CLS
 			CALL DAY
 			LXI H, VDATE
 			CALL DISPLAY
-			MVI A,10
+			CALL INITSRL
+LOOP00:		MVI A,10 ; when a refresh of the menu is needed
 			LXI H,CSRX
 			MOV M,A
 			LXI H,CSRY
@@ -17,7 +18,6 @@ BEGIN:		CALL CLS
 			MOV M,A ; cursor 10,2
 			LXI H, VGREET
 			CALL DISPLAY
-			CALL INITSRL
 			MVI A,1
 			LXI H,CSRX
 			MOV M,A
@@ -32,33 +32,76 @@ LOOP:		MVI A,11
 			LXI H,CSRY
 			MVI A,4
 			MOV M,A ; cursor 11,4
-			CALL CHGET
-			CPI 81 ; Q
+LOOP01:		CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+			JNZ HDLKBD
+LOOP02:		CALL RCVX ; check rs232 queue
+			JZ LOOP01
+			LXI H,CSRY
+			MVI A,8
+			MOV M,A
+			LXI H,POSX
+			MOV A,M
+			LXI H,CSRX
+			MOV M,A ; cursor X,8
+			CPI 1
+			JNZ LOOP04 ; if X = 1 we're on a new line, erase lines 6 & 8
+			LXI H,CSRY
+			MVI A,6
+			MOV M,A
+			CALL ERAEOL
+			LXI H,CSRY
+			MVI A,8
+			MOV M,A
+			CALL ERAEOL
+LOOP04:		CALL RV232C
+			CPI 10
+			JZ LOOP03 ; we have a line if it's lf
+			CPI 13
+			JZ LOOP02 ; skip if it's cr
+			CALL LCD
+			LXI H,POSX
+			MOV A,M
+			INR A
+			MOV M,A
+			CPI 40
+			JNZ LOOP02
+			MVI A,1
+			MOV M,A
+			JP LOOP02
+LOOP03:		LXI H,POSX
+			MVI A,1
+			MOV M,A
+			JP LOOP ; we should handle the line. for now just loop back
+HDLKBD:		CPI 81 ; Q
 			JZ,THEEND
 			CPI 113 ; q
 			JZ,THEEND
-			JP LOOP
 			CPI 80 ; P
 			JZ, PING
 			CPI 112 ; P
 			JZ, PING
-			JP LOOP
-PING:	MVI A,1
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
+			JP LOOP01
+PING:		LXI H,CSRY
 			MVI A,5
-			MOV M,A ; cursor 1,5
+			MOV M,A ; cursor 1,6
+			CALL ERAEOL
+			LXI H,CSRY
+			MVI A,7
+			MOV M,A ; cursor 1,6
+			CALL ERAEOL
+			LXI H,CSRY
+			MVI A,8
+			MOV M,A ; cursor 1,6
+			CALL ERAEOL
 			LXI H,NPING
-			CALL DISPLAY
+			CALL SNDSRL
 			JP LOOP
 THEEND:		CALL MENU
 
-INITSRL: ; display 5 setup bytes
-			MVI H,9
-			CALL BAUDST ; Set baud rate to 9, aka 19,200.
+INITSRL:	CALL CLSCOM
 			MVI H,9
 			MVI L, 1CH ; 0b11100 = 8N1
+			SETC ; FOR RS232
 			CALL INZCOM ; init com
 			MVI A,35
 			LXI H,CSRX
@@ -66,7 +109,7 @@ INITSRL: ; display 5 setup bytes
 			LXI H,CSRY
 			MVI A,1
 			MOV M,A ; cursor 35,1
-			LXI H, STAT
+			LXI H, STAT ; display 5 setup bytes
 			MOV A,M
 			CALL LCD ; baud
 			INX H
@@ -86,12 +129,15 @@ INITSRL: ; display 5 setup bytes
 			RET
 
 SNDSRL: 	PUSH H
+			IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
+			; register with an input from port C8. This is done, for example, at 6CE5.
 			MVI A,1
 			LXI H,CSRX
 			MOV M,A
 			LXI H,CSRY
 			MVI A,6
 			MOV M,A ; cursor 1,6
+			CALL ERAEOL
 			POP H
 SNDSRL0: 	MOV A,M
 			CPI 0
@@ -112,7 +158,8 @@ VGREET:	DS "LORA MESSENGER"
 	DB 0
 VKEY:	DS "ENTER KEY:"
 	DB 0
-NPING: DS "PING!"
-		DB 0
+NPING: DS "AT+PSEND:50494E48"
+		DB 10,0
 SRLGREET:	DS "Hello"
 	DB 13,10,0
+POSX: DB 1
