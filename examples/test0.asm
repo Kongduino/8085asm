@@ -101,7 +101,7 @@ THEEND:		CALL MENU
 INITSRL:	CALL CLSCOM
 			MVI H,9
 			MVI L, 1CH ; 0b11100 = 8N1
-			SETC ; FOR RS232
+			SETC ; FOR RS232 <--- Very important!
 			CALL INZCOM ; init com
 			MVI A,35
 			LXI H,CSRX
