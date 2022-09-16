@@ -466,15 +466,15 @@ int main(int argc, char** argv) {
   nb = 0;
   sum = 0;
   iaddr = mem[0].addr;
-  fprintf(fout4, "10 AD = %d\n", iaddr);
+  fprintf(fout4, "10 AD = %d\r\n", iaddr);
   int lineNum = 11;
-  fprintf(fout4, "%d N = %d\n", lineNum++, memc);
-  fprintf(fout4, "%d FOR I = 1 TO N\n", lineNum++);
-  fprintf(fout4, "%d READ X\n", lineNum++);
-  fprintf(fout4, "%d POKE AD,X\n", lineNum++);
-  fprintf(fout4, "%d AD=AD+1\n", lineNum++);
-  fprintf(fout4, "%d NEXT I\n", lineNum++);
-  fprintf(fout4, "%d CALL %d\n", lineNum++, iaddr);
+  fprintf(fout4, "%d N = %d\r\n", lineNum++, memc);
+  fprintf(fout4, "%d FOR I = 1 TO N\r\n", lineNum++);
+  fprintf(fout4, "%d READ X\r\n", lineNum++);
+  fprintf(fout4, "%d POKE AD,X\r\n", lineNum++);
+  fprintf(fout4, "%d AD=AD+1\r\n", lineNum++);
+  fprintf(fout4, "%d NEXT I\r\n", lineNum++);
+  fprintf(fout4, "%d CALL %d\r\n", lineNum++, iaddr);
   fprintf(fout4, "%d END\n", lineNum++);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
@@ -482,7 +482,7 @@ int main(int argc, char** argv) {
     if (nb == 0) {
       iaddr = mem[i].addr;
       sprintf(values, "%02X", mem[i].value);
-      fprintf(fout4, "\n%d DATA ", lineNum++);
+      fprintf(fout4, "\r\n%d DATA ", lineNum++);
     } else {
       fprintf(fout4, "%c", ',');
       sprintf(values, "%s%02X", values, mem[i].value);
