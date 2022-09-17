@@ -1,21 +1,13 @@
 	ORG 0xDA00
-BEGIN:		CALL CLS
+BEGIN:	CALL INITSRL
+LOOP00:	CALL CLS ; when a refresh of the menu is needed
 			CALL HOME
-			LXI H, VTIME
-			CALL TIME
-			LXI H, VDATE
-			CALL DATE
-			LXI H, VDAY
-			CALL DAY
-			LXI H, VDATE
-			CALL DISPLAY
-			CALL INITSRL
-LOOP00:		MVI A,10 ; when a refresh of the menu is needed
+			MVI A,10
 			LXI H,CSRX
 			MOV M,A
 			LXI H,CSRY
-			MVI A,2
-			MOV M,A ; cursor 10,2
+			MVI A,1
+			MOV M,A ; cursor 10,1
 			LXI H, VGREET
 			CALL DISPLAY
 			MVI A,1
@@ -26,15 +18,15 @@ LOOP00:		MVI A,10 ; when a refresh of the menu is needed
 			MOV M,A ; cursor 1,4
 			LXI H,VKEY
 			CALL DISPLAY
-LOOP:		MVI A,11
+LOOP:	MVI A,11
 			LXI H,CSRX
 			MOV M,A
 			LXI H,CSRY
 			MVI A,4
 			MOV M,A ; cursor 11,4
-LOOP01:		CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 			JNZ HDLKBD
-LOOP02:		CALL RCVX ; check rs232 queue
+LOOP02:	CALL RCVX ; check rs232 queue
 			JZ LOOP01
 			LXI H,CSRY
 			MVI A,8
@@ -53,7 +45,7 @@ LOOP02:		CALL RCVX ; check rs232 queue
 			MVI A,8
 			MOV M,A
 			CALL ERAEOL
-LOOP04:		CALL RV232C
+LOOP04:	CALL RV232C
 			CPI 10
 			JZ LOOP03 ; we have a line if it's lf
 			CPI 13
@@ -67,12 +59,12 @@ LOOP04:		CALL RV232C
 			JNZ LOOP02
 			MVI A,1
 			MOV M,A
-			JP LOOP02
-LOOP03:		LXI H,POSX
+			JMP LOOP02
+LOOP03:	LXI H,POSX
 			MVI A,1
 			MOV M,A
-			JP LOOP ; we should handle the line. for now just loop back
-HDLKBD:		CPI 81 ; Q
+			JMP LOOP ; we should handle the line. for now just loop back
+HDLKBD:	CPI 81 ; Q
 			JZ,THEEND
 			CPI 113 ; q
 			JZ,THEEND
@@ -80,23 +72,57 @@ HDLKBD:		CPI 81 ; Q
 			JZ, PING
 			CPI 112 ; P
 			JZ, PING
-			JP LOOP01
-PING:		LXI H,CSRY
+			JMP LOOP01
+PING:	LXI H,CSRY
 			MVI A,5
-			MOV M,A ; cursor 1,6
+			MOV M,A
 			CALL ERAEOL
 			LXI H,CSRY
 			MVI A,7
-			MOV M,A ; cursor 1,6
+			MOV M,A ; cursor 7,6
 			CALL ERAEOL
 			LXI H,CSRY
 			MVI A,8
-			MOV M,A ; cursor 1,6
+			MOV M,A ; cursor 1,8
 			CALL ERAEOL
 			LXI H,NPING
 			CALL SNDSRL
-			JP LOOP
-THEEND:		CALL MENU
+			JMP LOOP
+
+THEEND:	CALL CLSCOM
+			CALL MENU
+
+DOFREQ:	CALL CLS
+			CALL HOME
+			LXI H, FQMENU
+			CALL DISPLAY
+			CALL CHGET
+			CPI 0x42 ; B
+			JZ,LOOP00
+			CPI 0x62 ; q
+			JZ,LOOP00
+			CPI 0x30 ; 0
+			JZ DOFREQ0
+			CPI 0x31 ; 1
+			JZ DOFREQ1
+			CPI 0x32 ; 2
+			JZ DOFREQ2
+			CPI 0x33 ; 3
+			JZ DOFREQ3
+			JMP DOFREQ
+
+DOFREQ0:	LXI H,FCHOICE0
+			CALL SNDSRL
+			JMP DOFREQ
+DOFREQ1:	LXI H,FCHOICE1
+			CALL SNDSRL
+			JMP DOFREQ
+DOFREQ2:	LXI H,FCHOICE2
+			CALL SNDSRL
+			JMP DOFREQ
+DOFREQ3:	LXI H,FCHOICE3
+			CALL SNDSRL
+			JMP DOFREQ
 
 INITSRL:	CALL CLSCOM
 			MVI H,9
@@ -146,12 +172,9 @@ SNDSRL0: 	MOV A,M
 			MOV A,M
 			CALL LCD ; output the string also to LCD
 			INX H
-			JP SNDSRL0
+			JMP SNDSRL0
 RET00: RET
-VDATE:	DS "yy/mm/dd ("
-VDAY:	DS "ddd) "
-VTIME:	DS "hh:mm:ss "
-	DB 0
+
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
 	DS "(P)ING (F)REQUENCY (B)W (S)F (Q)UIT"
@@ -161,5 +184,21 @@ VKEY:	DS "ENTER KEY:"
 NPING: DS "AT+PSEND:50494E48"
 		DB 10,0
 SRLGREET:	DS "Hello"
-	DB 13,10,0
+	DB 0
+
+FQMENU0:	"Enter freq: "
+		DB 0
+FQMENU:	DS "(0)868.000 (1)868.125 (2)868.250"
+		DB 13,10
+		DS "(3)915.000 (B)ACK"
+		DB 0
+FCHOICE0: "AT+PFREQ=868000000"
+		DB 13, 10, 0
+FCHOICE0: "AT+PFREQ=868125000"
+		DB 13, 10, 0
+FCHOICE0: "AT+PFREQ=868250000"
+		DB 13, 10, 0
+FCHOICE0: "AT+PFREQ=915000000"
+		DB 13, 10, 0
+
 POSX: DB 1
