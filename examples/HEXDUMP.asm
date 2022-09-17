@@ -122,10 +122,10 @@ HEX2ASC: ; IN: A = BYTE
 	RRC
 	RRC ; A >> 4
 	ANI 0x0F ; & 0b00001111
-	ADI 0x30 ; Add 0x30 for '0'
+	ADI 0x30 ; Add 0x30 for '0' to '9'
 	CPI 0x3A
-	JM HEX2ASC0 ; 'A' to 'F'
-	ADI 7
+	JM HEX2ASC0
+	ADI 7 ; add 7 extra for 'A' to 'F'
 HEX2ASC0:	CALL LCD ; display first char
 	POP PSW ; retrieve A
 	ANI 0x0F ; same thing on lower nibble
