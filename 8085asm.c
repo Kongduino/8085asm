@@ -480,28 +480,18 @@ int main(int argc, char** argv) {
   nb = 0;
   sum = 0;
   iaddr = mem[0].addr;
-  fprintf(fout4, "10 AD = %d\r\n", iaddr);
-  int lineNum = 11;
-  fprintf(fout4, "%d N = %d\r\n", lineNum++, memc);
-  fprintf(fout4, "%d FOR I = 1 TO N\r\n", lineNum++);
-  fprintf(fout4, "%d READ X\r\n", lineNum++);
-  fprintf(fout4, "%d POKE AD,X\r\n", lineNum++);
-  fprintf(fout4, "%d AD=AD+1\r\n", lineNum++);
-  fprintf(fout4, "%d NEXT I\r\n", lineNum++);
-  fprintf(fout4, "%d CALL %d\r\n", lineNum++, iaddr);
-  fprintf(fout4, "%d END\n", lineNum++);
+  fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc), iaddr);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
     if (nb == 0) {
       iaddr = mem[i].addr;
       sprintf(values, "%02X", mem[i].value);
-      fprintf(fout4, "\r\n%d DATA ", lineNum++);
+      fprintf(fout4, "\r\n");
     } else {
-      fprintf(fout4, "%c", ',');
       sprintf(values, "%s%02X", values, mem[i].value);
     }
-    fprintf(fout4, "%d", mem[i].value);
+    fprintf(fout4, "%02X", mem[i].value);
     nb++;
     sum += mem[i].value;
     if ((mem[i + 1].addr != (mem[i].addr + 1)) || (nb == 16)) {
@@ -516,7 +506,6 @@ int main(int argc, char** argv) {
       sum = 0;
     }
   }
-  fprintf(fout4, "%c", 0x0a);
   fprintf(fout4, "%c", 0x1a);
   fprintf(fout2, ":00000001FF\n");
   fprintf(fout, ":00000001FF\n");
