@@ -397,6 +397,7 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "TIME"); labels[labelsc++].value = 0x190F;
   strcpy(labels[labelsc].nome, "UNLOCK"); labels[labelsc++].value = 0x4244;
   strcpy(labels[labelsc].nome, "UNPLOT"); labels[labelsc++].value = 0x744C;
+  strcpy(labels[labelsc].nome, "SETCUR"); labels[labelsc++].value = 0x7440;
   pass = 1;
   while (fgets(line, 256, fin)) {
     if (line[0] == ';') {

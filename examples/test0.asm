@@ -173,7 +173,6 @@ SNDSRL0: 	MOV A,M
 			CALL LCD ; output the string also to LCD
 			INX H
 			JMP SNDSRL0
-RET00: RET
 
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
