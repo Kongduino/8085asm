@@ -1,73 +1,73 @@
 	ORG 8000H
 	CALL CLS
 	CALL HOME
-	MVI A,0x80
+	MVI A, 0x80
 	CALL HEX2ASC
-	MVI A,0x00
+	MVI A, 0x00
 	CALL HEX2ASC
-	LXI B,0x0800
+	LXI B, 0x0800
 	CALL MULT5
 	PUSH B
-	MVI A,7
-	MVI B,1
+	MVI A, 7
+	MVI B, 1
 	CALL CURSOR
 	POP B
 	PUSH B
-	MOV A,B	
+	MOV A, B	
 	CALL HEX2ASC
 	POP B
-	MOV A,C
+	MOV A, C
 	CALL HEX2ASC
-	MVI A,1
-	MVI B,2
+	MVI A, 1
+	MVI B, 2
 	CALL CURSOR
-	MVI A,0x00
+	MVI A, 0x00
 	CALL HEX2ASC
-	MVI A,0x10
+	MVI A, 0x10
 	CALL HEX2ASC
-	MVI A,7
-	MVI B,2
+	MVI A, 7
+	MVI B, 2
 	CALL CURSOR
-	LXI B,0x0010
+	LXI B, 0x0010
 	CALL MULT5
 	CALL MULT5 ; BC = BC * 25
 	PUSH B
-	MOV A,B
+	MOV A, B
 	CALL HEX2ASC
 	POP B
-	MOV A,C
+	MOV A, C
 	CALL HEX2ASC
 	CALL CHGET
 	RET
 
 CURSOR:	; a = x. b = y
 	PUSH H ; preserve HL
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MOV M,B ; cursor X,Y
+	LXI H, CSRX
+	MOV M, A
+	LXI H, CSRY
+	MOV M, B ; cursor X, Y
 	POP H
 	RET
 
 DIV8: ; BC = NUMBER
-	MOV  A,  B
+	MOV  A, B
 	RAR
-	MOV  B,  A ; bit-shift right through carry
-	MOV  A,  C
+	MOV  B, A ; bit-shift right through carry
+	MOV  A, C
 	RAR
-	MOV  C,  A ; bit-shift right through carry
-	MOV  A,  B
+	MOV  C, A ; bit-shift right through carry
+	MOV  A, B
 	RAR
-	MOV  B,  A ; bit-shift right through carry
-	MOV  A,  C
+	MOV  B, A ; bit-shift right through carry
+	MOV  A, C
 	RAR
-	MOV  C,  A ; bit-shift right through carry
-	MOV  A,  B
+	MOV  C, A ; bit-shift right through carry
+	MOV  A, B
 	RAR
-	MOV  B,  A ; bit-shift right through carry
-	MOV  A,  C
+	MOV  B, A ; bit-shift right through carry
+	MOV  A, C
 	RAR
-	MOV  C,  A ; bit-shift right through carry
+	MOV  C, A ; bit-shift right through carry
 
 MULT5: ; BC = NUMBER
 	PUSH H

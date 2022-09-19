@@ -399,6 +399,17 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "PLOT"); labels[labelsc++].value = 0x744C;
   strcpy(labels[labelsc].nome, "UNPLOT"); labels[labelsc++].value = 0x744D;
   strcpy(labels[labelsc].nome, "SETCUR"); labels[labelsc++].value = 0x7440;
+  strcpy(labels[labelsc].nome, "PAUSE"); labels[labelsc++].value = 0x5f2f; // DEBUG413
+  strcpy(labels[labelsc].nome, "PRTINT"); labels[labelsc++].value = 0x39D4; // DEBUG413
+  strcpy(labels[labelsc].nome, "BEEP"); labels[labelsc++].value = 0x4229; // DEBUG413
+  strcpy(labels[labelsc].nome, "GETUC"); labels[labelsc++].value = 0x0fe8; // DEBUG413
+  strcpy(labels[labelsc].nome, "TOUPPER"); labels[labelsc++].value = 0x0fe9; // DEBUG413
+  strcpy(labels[labelsc].nome, "GETLNP"); labels[labelsc++].value = 0X4644; // DEBUG413
+  strcpy(labels[labelsc].nome, "GETLN"); labels[labelsc++].value = 0X463e; // DEBUG413
+  strcpy(labels[labelsc].nome, "CHKCHR"); labels[labelsc++].value = 0x5d46; // DEBUG413
+  strcpy(labels[labelsc].nome, "INBUF"); labels[labelsc++].value = 0xf685; // DEBUG413
+
+  
   pass = 1;
   while (fgets(line, 256, fin)) {
     if (line[0] == ';') {

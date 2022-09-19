@@ -1,19 +1,19 @@
-	ORG 0xDA00
+	ORG 0xD000
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
-	MVI A, 10
-	MVI B, 1
-	CALL CURSOR
+	MVI D, 10
+	MVI E, 1
+	CALL POSIT
 	LXI H, GREET0
-	MVI A, 1
-	MVI B, 2
-	CALL CURSOR
+	MVI D, 1
+	MVI E, 2
+	CALL POSIT
 	LXI H, GREET1
 	CALL DISPLAY
 	CALL CHGET
-	MVI A, 1
-	MVI B, 2
-	CALL CURSOR
+	MVI D, 1
+	MVI E, 2
+	CALL POSIT
 	LXI H, GREET2
 	PUSH H
 	CALL DISPLAY
@@ -59,12 +59,9 @@ INITSRL:	CALL CLSCOM
 	MVI L, 1CH ; 0b11100 = 8N1
 	SETC ; FOR RS232 <--- Very important!
 	CALL INZCOM ; init com
-	MVI A,35
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,1
-	MOV M,A ; cursor 35,1
+	MVI D,35
+	MVI E,1
+	CALL POSIT ; cursor 35,1
 	LXI H, STAT ; display 5 setup bytes
 	MOV A,M
 	CALL LCD ; baud
@@ -87,12 +84,9 @@ INITSRL:	CALL CLSCOM
 SNDSRL:	PUSH H
 	IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
 	; register with an input from port C8. This is done, for example, at 6CE5.
-	MVI A,1
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,6
-	MOV M,A ; cursor 1,6
+	MVI D,1
+	MVI E,6
+	CALL POSIT ; cursor 1,6
 	CALL ERAEOL
 	POP H
 SNDSRL0: 	MOV A,M
@@ -103,15 +97,6 @@ SNDSRL0: 	MOV A,M
 	CALL LCD ; output the string also to LCD
 	INX H
 	JMP SNDSRL0
-
-CURSOR:	; a = x. b = y
-	PUSH H ; preserve HL
-	LXI H, CSRX
-	MOV M, A
-	LXI H, CSRY
-	MOV M, B ; cursor X, Y
-	POP H
-	RET
 
 HEX2ASC: ; IN: A = BYTE
 	PUSH H ; preserve HL
