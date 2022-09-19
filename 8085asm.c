@@ -480,7 +480,7 @@ int main(int argc, char** argv) {
   nb = 0;
   sum = 0;
   iaddr = mem[0].addr;
-  fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc-2), iaddr);
+  fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc-1), iaddr);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
