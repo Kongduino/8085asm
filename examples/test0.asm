@@ -1,4 +1,4 @@
-	ORG 0xDA00
+	ORG 0xF3CD
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
 			CALL HOME

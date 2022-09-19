@@ -1,4 +1,4 @@
-	ORG 0xDA00
+	ORG 0x8000
 LOOP:	CALL HOME
 	CALL CLS
 	LHLD CURRADD ; We start at 0x8000
@@ -81,8 +81,6 @@ BACK00: LXI H,CURRADD
 	CP 0x80
 	JZ LOOP02 ; if CURADD is 0x8000 then skip
 BACK01:	LHLD CURRADD
-	MVI A,8
-BACK02:	DCX H
 	DCX H
 	DCX H
 	DCX H
@@ -90,9 +88,8 @@ BACK02:	DCX H
 	DCX H
 	DCX H
 	DCX H
-	SUI 1
-	JNZ BACK02
-	SHLD CURRADD ; Decrement address by 8 x 8
+	DCX H
+	SHLD CURRADD ; Decrement address by 8
 	JMP LOOP ; go back to the beginning and display the previous 8 bytes
 
 FWD00: LXI H,CURRADD
@@ -104,8 +101,6 @@ FWD00: LXI H,CURRADD
 	CP 0x80
 	JZ LOOP02 ; if CURADD is 0x8000 then skip
 FWD01: LHLD CURRADD
-	MVI A,8
-FWD02:	INX H
 	INX H
 	INX H
 	INX H
@@ -113,9 +108,8 @@ FWD02:	INX H
 	INX H
 	INX H
 	INX H
-	SUI 1
-	JNZ FWD02
-	SHLD CURRADD ; Increment address by 8 x 8
+	INX H
+	SHLD CURRADD ; Increment address by 8
 	JMP LOOP ; go back to the beginning and display the previous 8 bytes
 
 THEEND: RET
