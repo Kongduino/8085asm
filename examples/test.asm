@@ -1,6 +1,6 @@
 ORG 0xDA00
 ENT 0xDA00
-MESSAGE: DS 'TIME = '
+MESSAGE: DS "TIME = "
 DB 0x00 ;terminator
 
 ; These are all ROM subroutines
@@ -32,19 +32,19 @@ KYREAD EQU 0x7242	; Scans kbd for a key, returns in A, if any.
 					; A = 8-11: LABEL, PRINT, SHIFT, PASTE.
 CHGET EQU 0x12CB	; Waits for a key, returns in A. C flag set if special key.
 					; F1-F8 return preprogrammed keys
-FCTAB DEFM 'FILES'
+FCTAB DEFM "FILES"
 DEFW 0D80 ; F1
-DEFM 'LOAD'
+DEFM "LOAD"
 DEFW 0D80 ; F2
-DEFM 'SAVE'
+DEFM "SAVE"
 DEFW 0D80 ; F3
-DEFM 'RUN'
+DEFM "RUN"
 DEFW 0D80 ; F4
-DEFM 'LIST'
+DEFM "LIST"
 DEFW 0D80 ; F5
 DEFW 80 ; F6 IGNORE
 DEFW 80 ; F7 IGNORE
-DEFM 'MENU'
+DEFM "MENU"
 DEFW 0D80 ; F8
 STFNK EQU 0x5A7C	; Sets the table above, LXI HL, FCTAB.
 CLRFNK EQU 0x5A79	; Clears the table above.
