@@ -1,7 +1,7 @@
-	ORG 0x8000
+	ORG 0xF4F7
 LOOP:	CALL HOME
 	CALL CLS
-	LHLD CURRADD ; We start at 0x8000
+	LHLD CURRADD ; Start Address
 	MVI A,1 ; display 8 rows
 LOOP00:	PUSH PSW
 	PUSH H
