@@ -15,5 +15,5 @@
 160 IF AD<CHK THEN 80
 170 PRINT@0,"Done!             ": INPUT"Output File Name (or return to skip): ";F$
 180 IF F$ <> "" THEN SAVEM F$,TP,CHK,EX
-190 CLS:PRINT@80"Now run the code with CALL";TP
+190 CLS:PRINT@80,"Now run the code with CALL";EX
 
