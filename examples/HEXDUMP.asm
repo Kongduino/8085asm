@@ -1,19 +1,15 @@
-	ORG 0xF4F7
-LOOP:	CALL HOME
-	CALL CLS
-	LHLD CURRADD ; Start Address
+	ORG 0xF52A ; run 8085asm once first to know the correct ORG
+LOOP:	CALL CLS
 	MVI A,1 ; display 8 rows
 LOOP00:	PUSH PSW
-	PUSH H
 	LXI H, CSRY
 	MOV M,A
 	LXI H, CSRX
 	MVI A,1
+	MOV M,A
+	LHLD CURRADD ; Start Address
+	SHLD LASTADD ; Save that address for later
 	MOV M,A ; set cursor to 1,row
-	POP H
-	MVI A,8 ; display 8 bytes
-LOOP01:	PUSH PSW
-	PUSH H
 	MOV A,H ; display address 1st half
 	CALL HEX2ASC ; Preserves HL
 	MOV A,L ; display address 2nd half
@@ -22,6 +18,10 @@ LOOP01:	PUSH PSW
 	CALL LCD
 	MVI A,0x20 ; space
 	CALL LCD
+	LHLD CURRADD ; Start Address
+	MVI A,8 ; display 8 bytes
+LOOP01:	PUSH PSW
+	PUSH H
 	MOV A,M
 	CALL HEX2ASC ; display content of memory
 	MVI A,0x20
@@ -29,7 +29,7 @@ LOOP01:	PUSH PSW
 	POP H
 	INX H ; increment address
 	POP PSW
-	SUI 1 ; byte counter
+	DCR A ; byte counter
 	JNZ LOOP01
 	DCX H
 	DCX H
@@ -42,19 +42,21 @@ LOOP01:	PUSH PSW
 	MVI A,8 ; display 8 bytes ASCII or .
 LOOP03:	PUSH PSW
 	PUSH H
-	MOV A,H
+	MOV A,M
 	CPI 31
 	JP LOOP04 ; printable char?
 	MVI A,0x2E ; or display '.'
 LOOP04: CALL LCD
+	POP H
+	INX H
 	POP PSW
-	SUI 1 ; byte counter
+	DCR A ; byte counter
 	JNZ LOOP03
+	SHLD CURRADD
 	POP PSW
 	ADI 1 ; row counter
 	CPI 8
 	JNZ LOOP00
-	SHLD CURRADD
 
 LOOP02:	CALL CHGET ; this is where we decide what to do next
 	CPI 81 ; Q
@@ -67,49 +69,15 @@ LOOP02:	CALL CHGET ; this is where we decide what to do next
 	JZ BACK00
 	JZ,THEEND
 	CPI 0x46 ; 'F' forward
-	JZ FWD00
+	JZ LOOP
 	CPI 0x66 ; 'f' forward
-	JZ FWD00
+	JZ LOOP
 	JMP LOOP02
 
-BACK00: LXI H,CURRADD
-	MOV A,M
-	CPI 0
-	JNZ BACK01
-	INX H
-	MOV A,M
-	CP 0x80
-	JZ LOOP02 ; if CURADD is 0x8000 then skip
-BACK01:	LHLD CURRADD
-	DCX H
-	DCX H
-	DCX H
-	DCX H
-	DCX H
-	DCX H
-	DCX H
-	DCX H
-	SHLD CURRADD ; Decrement address by 8
-	JMP LOOP ; go back to the beginning and display the previous 8 bytes
-
-FWD00: LXI H,CURRADD
-	MOV A,M
-	CPI 0
-	JNZ FWD01
-	INX H
-	MOV A,M
-	CP 0x80
-	JZ LOOP02 ; if CURADD is 0x8000 then skip
-FWD01: LHLD CURRADD
-	INX H
-	INX H
-	INX H
-	INX H
-	INX H
-	INX H
-	INX H
-	INX H
-	SHLD CURRADD ; Increment address by 8
+BACK00:	LHLD LASTADD
+	LXI B, 0xFFC0 ; -64
+	DAD B
+	SHLD CURRADD ; Decrement address by 64
 	JMP LOOP ; go back to the beginning and display the previous 8 bytes
 
 THEEND: RET
@@ -138,3 +106,4 @@ HEX2ASC1:	CALL LCD
 	RET
 
 CURRADD: DB 0x00, 0x80 ; 0x8000
+LASTADD: DB 0x00, 0x80 ; 0x8000
