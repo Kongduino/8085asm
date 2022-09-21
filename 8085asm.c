@@ -481,6 +481,9 @@ int main(int argc, char** argv) {
   sum = 0;
   iaddr = mem[0].addr;
   fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc-1), iaddr);
+  unsigned int HIMEM = 62960-memc;
+  printf("CLEAR 256,%d\n", HIMEM);
+  printf("Ideal ORG should be: 0x%04X\n", (HIMEM+1));
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
