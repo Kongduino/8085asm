@@ -483,7 +483,10 @@ int main(int argc, char** argv) {
   fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc-1), iaddr);
   unsigned int HIMEM = 62960-memc-1;
   printf("CLEAR 256,%d\n", HIMEM);
-  printf("Ideal ORG should be: 0x%04X\n", (HIMEM+1));
+  if (iaddr != (HIMEM+1)) {
+    printf("For this code to work with LOADCO.BA, ORG should be: 0x%04X\n", (HIMEM+1));
+    printf("Please change ORG to 0x%04X and compile again.\n", (HIMEM+1));
+  }
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
