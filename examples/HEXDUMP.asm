@@ -1,4 +1,4 @@
-	ORG 0xF52A ; run 8085asm once first to know the correct ORG
+	ORG 0xF4f7 ; run 8085asm once first to know the correct ORG
 LOOP:	CALL CLS
 	MVI A,1 ; display 8 rows
 LOOP00:	PUSH PSW
@@ -63,22 +63,37 @@ LOOP02:	CALL CHGET ; this is where we decide what to do next
 	JZ,THEEND
 	CPI 113 ; q
 	JZ,THEEND
-	CPI 0x42 ; 'B' back
+	CPI 0x1e ; 'arrow up' back
 	JZ BACK00
-	CPI 0x62 ; 'b' back
-	JZ BACK00
-	JZ,THEEND
-	CPI 0x46 ; 'F' forward
+	CPI 0x20 ; ' ' forward
 	JZ LOOP
-	CPI 0x66 ; 'f' forward
+	CPI 0x1F ; 'arrow down' forward
 	JZ LOOP
+	CPI 0x2F ; '/' search
+	JZ LOOKUP
 	JMP LOOP02
 
 BACK00:	LHLD LASTADD
-	LXI B, 0xFFC0 ; -64
+	LXI B, 0xFFC8 ; -72
 	DAD B
-	SHLD CURRADD ; Decrement address by 64
+	SHLD CURRADD ; Decrement address by 72
 	JMP LOOP ; go back to the beginning and display the previous 8 bytes
+
+LOOKUP:	MVI A,1
+	LXI H, CSRX
+	MOV M,A
+	LXI H, CSRY
+	MVI A,4
+	MOV M,A
+	CALL ERAEOL
+	MVI A,5
+	LXI H, CSRX
+	MOV M,A
+	LXI H, ENTERSEARCH
+	CALL DISPLAY
+	CALL INLIN
+	CALL CHGET
+	JMP BACK00
 
 THEEND: RET
 
@@ -107,3 +122,6 @@ HEX2ASC1:	CALL LCD
 
 CURRADD: DB 0x00, 0x80 ; 0x8000
 LASTADD: DB 0x00, 0x80 ; 0x8000
+
+ENTERSEARCH: DS "Enter Hex Line: "
+	DB 0
