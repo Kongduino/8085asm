@@ -435,8 +435,8 @@ int main(int argc, char** argv) {
       men = strtok(sline + ix, " \t:, \n");
       printf("line = %skwd = %s\n", sline, men);
       if (strcmp(men, "ORG") == 0) {
-        printf("\tORG 0x%04x\n", TOP);
-        fprintf(fout1, "\tORG 0x%04x\n", TOP);
+        printf("\tORG 0x%04X\n", TOP);
+        fprintf(fout1, "\tORG 0x%04X\n", TOP);
         done = 'Y';
       } else {
         fprintf(fout1, "%s", line);
