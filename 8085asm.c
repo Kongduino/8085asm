@@ -525,7 +525,7 @@ unsigned short doCompile() {
   sum = 0;
   iaddr = mem[0].addr;
   fprintf(fout4, "%d,%d,%d", iaddr, (iaddr + memc - 1), iaddr);
-  unsigned int HIMEM = 62960 - memc - 1;
+  unsigned int HIMEM = 62960 - memc - 2;
   printf("CLEAR 256,%d\n", HIMEM);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
