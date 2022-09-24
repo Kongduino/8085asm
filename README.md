@@ -130,3 +130,31 @@ Another option, `-x da00:da22`, which can be repeated multiple times, is being b
 ```
 
 This should make it easier to load ASM code.
+
+**2022/09/24**
+
+The compiler now runs twice over the same code: the first time it compiles the code with the `ORG` that's given in the file. And since Jumps and Calls are not relative, any change to ORG without recompiling (ie by saving the code as is in RAM on the Tandy) would crash. Ask me how I know.
+
+So once that's done, the code calculates the real `ORG` value, and saves the file in a copy, and runs the compile process a second time, over ***that*** file, producing a binary that can be safely saved in RAM with my LOAD_CO Xojo + Tandy [binary loader code](https://github.com/Kongduino/Load_CO).
+
+```bash
+> 8085asm HEXDUMP.asm
+LCGamboa 8085 assembler 2008
+
+* Saving HEXDUMP.map:
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (249 bytes):
+* Saving HEXDUMP.hex, HEXDUMP.co and HEXDUMP.do:
+CLEAR 256,62709
+All done!
+
+TOP is 0xf4f6. Rewriting source to HEXDUMP.copy.asm...
+line = 	ORGkwd = ORG
+	ORG 0xF4F6
+Compiling again...
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (498 bytes):
+* Saving HEXDUMP.hex, HEXDUMP.co and HEXDUMP.do:
+CLEAR 256,62460
+All done!
+```
