@@ -1,7 +1,7 @@
 /* ########################################################################
    8085asm - Simple 8085 assembler and disassembler
    ########################################################################
-   Copyright (c):	2009 Luis Claudio Gamboa Lopes
+   Copyright (c):  2009 Luis Claudio Gamboa Lopes
                   2022 Kongduino for this version
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "8085asm.h"
 
 int lc = 1;
+unsigned short doCompile();
 
 void ucase (char * str) {
   int i;
@@ -43,6 +44,22 @@ unsigned char prg[256];
 int labelsc = 0;
 int pass;
 int memc;
+unsigned char sum;
+unsigned char nb;
+unsigned short iaddr;
+char values[100];
+char *fnamep;
+FILE *fout;
+FILE *fout1;
+FILE *fout2;
+FILE *fout3;
+FILE *fout4;
+FILE* fin;
+char fname[256];
+char fname1[256];
+char fname2[256];
+char fname3[256];
+char fname4[256];
 
 int parseNumber(char *arg) {
   int n0 = 0, n1 = 0, n2 = 0, myValue = 0;
@@ -266,30 +283,15 @@ int parse(char * line) {
     int nx, ny = strlen(tmp);
     for (nx = 0; nx < ny; nx++) {
       // printf(" . Adding char %c like it was `DB `%02x`, \n", tmp[nx], tmp[nx]);
-      prg[addi+nx] = tmp[nx];
+      prg[addi + nx] = tmp[nx];
     }
-    addi += (ny-1);
+    addi += (ny - 1);
   }
   return 1;
 }
 
 int main(int argc, char** argv) {
-  char fname[256];
-  char fname2[256];
-  char fname3[256];
-  char fname4[256];
-  FILE* fin;
   char line[256];
-  int i;
-  unsigned char sum;
-  unsigned char nb;
-  unsigned short iaddr;
-  char values[100];
-  char *fnamep;
-  FILE *fout;
-  FILE *fout2;
-  FILE *fout3;
-  FILE *fout4;
   if (argc == 2) {
     strcpy(fname, argv[1]);
   } else {
@@ -304,6 +306,8 @@ int main(int argc, char** argv) {
   }
   fnamep = strtok(fname, ".");
   printf("LCGamboa 8085 assembler 2008\n\n");
+  strcpy(fname1, fnamep);
+  strcat(fname1, ".copy.asm");
   strcpy(fname2, fnamep);
   strcat(fname2, ".map");
   strcpy(fname3, fnamep);
@@ -409,7 +413,47 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "CHKCHR"); labels[labelsc++].value = 0x5d46; // DEBUG413
   strcpy(labels[labelsc].nome, "INBUF"); labels[labelsc++].value = 0xf685; // DEBUG413
 
-  
+  char sline[256];
+  unsigned short TOP = doCompile();
+  printf("TOP is 0x%04x. Rewriting source to %s...\n", TOP, fname1);
+  rewind(fin);
+  char done = 'N';
+  fout1 = fopen(fname1, "w");
+  if (!fout1) {
+    printf("Error opening file: %s\n", fname1);
+    return -1;
+  }
+  while (fgets(line, 256, fin)) {
+    strcpy(sline, line);
+    char *men;
+    if (done == 'Y') {
+      fprintf(fout1, "%s", line);
+    } else {
+      unsigned int ix = 0;
+      while (sline[ix] != ' ' && sline[ix] != '\t') ix += 1; // skip label
+      while (sline[ix] == ' ' || sline[ix] == '\t') ix += 1; // skipe whitespace
+      men = strtok(sline + ix, " \t:, \n");
+      printf("line = %skwd = %s\n", sline, men);
+      if (strcmp(men, "ORG") == 0) {
+        printf("\tORG 0x%04x\n", TOP);
+        fprintf(fout1, "\tORG 0x%04x\n", TOP);
+        done = 'Y';
+      } else {
+        fprintf(fout1, "%s", line);
+      }
+    }
+  }
+  fclose(fout1);
+  fclose(fin);
+  fin = fopen(fname1, "r");
+  printf("Compiling again...\n");
+  TOP = doCompile();
+  return 1;
+}
+
+unsigned short doCompile() {
+  int i;
+  char line[256];
   pass = 1;
   while (fgets(line, 256, fin)) {
     if (line[0] == ';') {
@@ -480,13 +524,9 @@ int main(int argc, char** argv) {
   nb = 0;
   sum = 0;
   iaddr = mem[0].addr;
-  fprintf(fout4, "%d,%d,%d", iaddr, (iaddr+memc-1), iaddr);
-  unsigned int HIMEM = 62960-memc-1;
+  fprintf(fout4, "%d,%d,%d", iaddr, (iaddr + memc - 1), iaddr);
+  unsigned int HIMEM = 62960 - memc - 1;
   printf("CLEAR 256,%d\n", HIMEM);
-  if (iaddr != (HIMEM+1)) {
-    printf("For this code to work with LOADCO.BA, ORG should be: 0x%04X\n", (HIMEM+1));
-    printf("Please change ORG to 0x%04X and compile again.\n", (HIMEM+1));
-  }
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
@@ -520,5 +560,5 @@ int main(int argc, char** argv) {
   fclose(fout3);
   fclose(fout4);
   printf("%s\n\n\n", "All done!");
-  return 1;
+  return (HIMEM + 1);
 }
