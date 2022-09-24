@@ -56,6 +56,7 @@ FILE *fout3;
 FILE *fout4;
 FILE* fin;
 char fname[256];
+char fname0[256];
 char fname1[256];
 char fname2[256];
 char fname3[256];
@@ -299,11 +300,13 @@ int main(int argc, char** argv) {
     scanf("%s", fname);
     getchar();
   }
+  printf("Opening file: %s\n", fname);
   fin = fopen(fname, "r");
   if (!fin) {
     printf("Error opening file: %s\n", fname);
     return -1;
   }
+  strcpy(fname0, fname);
   fnamep = strtok(fname, ".");
   printf("LCGamboa 8085 assembler 2008\n\n");
   strcpy(fname1, fnamep);
@@ -414,9 +417,26 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "INBUF"); labels[labelsc++].value = 0xf685; // DEBUG413
 
   char sline[256];
+  memc = 0;
   unsigned short TOP = doCompile();
   printf("TOP is 0x%04x. Rewriting source to %s...\n", TOP, fname1);
-  rewind(fin);
+  if (remove(fname3) == 0) {
+    printf("File %s was deleted successfully.\n", fname3);
+  } else {
+    printf("File %s was NOT deleted successfully.\n", fname3);
+  }
+  if (remove(fname1) == 0) {
+    printf("File %s was deleted successfully.\n", fname1);
+  } else {
+    printf("File %s was NOT deleted successfully.\n", fname1);
+  }
+  fclose(fin);
+  printf("Opening file: %s\n", fname0);
+  fin = fopen(fname0, "r");
+  if (!fin) {
+    printf("Error opening file: %s\n", fname0);
+    return -1;
+  }
   char done = 'N';
   fout1 = fopen(fname1, "w");
   if (!fout1) {
@@ -428,25 +448,33 @@ int main(int argc, char** argv) {
     char *men;
     if (done == 'Y') {
       fprintf(fout1, "%s", line);
+      // printf("%s", line);
     } else {
       unsigned int ix = 0;
       while (sline[ix] != ' ' && sline[ix] != '\t') ix += 1; // skip label
       while (sline[ix] == ' ' || sline[ix] == '\t') ix += 1; // skipe whitespace
       men = strtok(sline + ix, " \t:, \n");
-      printf("line = %skwd = %s\n", sline, men);
+      printf("line = %s; kwd = %s\n", sline, men);
       if (strcmp(men, "ORG") == 0) {
         printf("\tORG 0x%04X\n", TOP);
         fprintf(fout1, "\tORG 0x%04X\n", TOP);
         done = 'Y';
       } else {
         fprintf(fout1, "%s", line);
+        // printf("%s", line);
       }
     }
   }
   fclose(fout1);
   fclose(fin);
+  printf("Done...\n");
   fin = fopen(fname1, "r");
+  if (!fin) {
+    printf("Error opening file: %s\n", fname1);
+    return -1;
+  }
   printf("Compiling again...\n");
+  memc = 0;
   TOP = doCompile();
   return 1;
 }
@@ -525,8 +553,6 @@ unsigned short doCompile() {
   sum = 0;
   iaddr = mem[0].addr;
   fprintf(fout4, "%d,%d,%d", iaddr, (iaddr + memc - 1), iaddr);
-  unsigned int HIMEM = 62960 - memc - 2;
-  printf("CLEAR 256,%d\n", HIMEM);
   for (i = 0; i < memc; i++) {
     fprintf(fout3, "%c", mem[i].value);
     // printf(" %04XH  %02XH\n", mem[i].addr, mem[i].value);
@@ -558,6 +584,20 @@ unsigned short doCompile() {
   fclose(fout);
   fclose(fout2);
   fclose(fout3);
+  fin = fopen(fname3, "r");
+  if (!fin) {
+    printf("Error opening file: %s\n", fname3);
+    return -1;
+  }
+  fseek(fin, 0L, SEEK_END);
+  int sz = ftell(fin);
+  fclose(fin);
+  printf("File size: %d. ", sz);
+  if (sz == memc) printf("This matches memc. Goodie.\n");
+  else printf("This differs from memc (%d). No goodsky.\n", memc);
+  unsigned int HIMEM = 62960 - sz - 1;
+  printf("CLEAR 256,%d\n", HIMEM);
+
   fclose(fout4);
   printf("%s\n\n\n", "All done!");
   return (HIMEM + 1);
