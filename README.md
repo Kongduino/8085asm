@@ -139,22 +139,30 @@ So once that's done, the code calculates the real `ORG` value, and saves the fil
 
 ```bash
 > 8085asm HEXDUMP.asm
+Opening file: HEXDUMP.asm
 LCGamboa 8085 assembler 2008
 
 * Saving HEXDUMP.map:
    Saving SYMBOLIC TABLE.
 * RAM occupied:  (249 bytes):
 * Saving HEXDUMP.hex, HEXDUMP.co and HEXDUMP.do:
-CLEAR 256,62709
+File size: 249. This matches memc. Goodie.
+CLEAR 256,62710
 All done!
 
-TOP is 0xf4f6. Rewriting source to HEXDUMP.copy.asm...
-line = 	ORGkwd = ORG
-	ORG 0xF4F6
+
+TOP is 0xf4f7. Rewriting source to HEXDUMP.copy.asm...
+File HEXDUMP.co was deleted successfully.
+File HEXDUMP.copy.asm was deleted successfully.
+Opening file: HEXDUMP.asm
+line = 	ORG; kwd = ORG
+	ORG 0xF4F7
+Done...
 Compiling again...
    Saving SYMBOLIC TABLE.
-* RAM occupied:  (498 bytes):
+* RAM occupied:  (249 bytes):
 * Saving HEXDUMP.hex, HEXDUMP.co and HEXDUMP.do:
-CLEAR 256,62460
+File size: 249. This matches memc. Goodie.
+CLEAR 256,62710
 All done!
 ```
