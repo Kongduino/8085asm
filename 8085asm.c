@@ -417,7 +417,12 @@ int main(int argc, char** argv) {
   char sline[256];
   memc = 0;
   unsigned short TOP = doCompile();
-  printf("TOP is 0x%04x. Rewriting source to %s...\n", TOP, fname1);
+  printf("TOP is 0x%04x. ORG is 0x%04x\n", TOP, mem[0].addr);
+  if(TOP == mem[0].addr) {
+    printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
+    return 1;
+  }
+  printf("TOP & iaddr are different. Rewriting source to %s...\n", fname1);
   if (remove(fname3) == 0) {
     printf("File %s was deleted successfully.\n", fname3);
   } else {
