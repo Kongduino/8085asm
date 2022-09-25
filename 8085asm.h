@@ -309,5 +309,17 @@ static Opcode opcode[] = {
   {0xAE, "XRA", 1, "M", " ", 0},
   {0xEE, "XRI", 0, "M", " ", 1},
   {0xE3, "XTHL", 0, "M", " ", 0},
+  // Additions from 8085undef.doc
+  {0x08, "DSUB", 0, " ", " ", 0}, // HL=HL-BC
+  {0x10, "ARHL", 0, " ", " ", 0}, // HL=HL/2
+  {0x18, "RDEL", 0, " ", " ", 0}, // rotate DE left thru carry: ;E[0]=c, c=D[7]
+  {0x28, "LDHI", 0, " ", " ", 1}, // DE=HL+following (unsigned) byte
+  {0x38, "LDSI", 0, " ", " ", 1}, // DE=SP+following (unsigned) byte
+  {0xCB, "RSTV", 0, " ", " ", 0}, // call 40h if overflow flag set
+  {0xD9, "SHLX", 0, " ", " ", 0}, // (DE)=HL
+  {0xED, "LHLX", 0, " ", " ", 0}, // HL=(DE)
+  {0xDD, "JNUI", 0, " ", " ", 2}, // jump <address> if flag bit 5 (underflow) clear. See below
+  {0xFD, "JUI", 0, " ", " ", 2}, // jump <address> if flag bit 5 (underflow) set. See below
+
   {0xFF, "ENDO", 0, " ", " ", 0}  //fim da tabela
 };

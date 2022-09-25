@@ -271,5 +271,41 @@ static Opcode opcode[] = {
   {0xAE, "XRA", 1, "M", " ", 0, "XOR", "(HL)", ""},
   {0xEE, "XRI", 0, "M", " ", 1, "XOR", "", ""},
   {0xE3, "XTHL", 0, "M", " ", 0, "EX (SP),HL", "", ""},
-  {0xFF, "ENDO", 0, " ", " ", 0, "", "", ""} // End of table
+  // Additions from 8085undef.doc
+  {0x08, "DSUB", 0, " ", " ", 0, "DSUB", "", ""}, // HL=HL-BC
+  {0x10, "ARHL", 0, " ", " ", 0, "ARHL", "", ""}, // HL=HL/2
+  {0x18, "RDEL", 0, " ", " ", 0, "RDEL", "", ""}, // rotate DE left thru carry: ;E[0]=c, c=D[7]
+  {0x28, "LDHI", 0, " ", " ", 1, "LDHI", "", ""}, // DE=HL+following (unsigned) byte
+  {0x38, "LDSI", 0, " ", " ", 1, "LDSI", "", ""}, // DE=SP+following (unsigned) byte
+  {0xCB, "RSTV", 0, " ", " ", 0, "RSTV", "", ""}, // call 40h if overflow flag set
+  {0xD9, "SHLX", 0, " ", " ", 0, "SHLX", "", ""}, // (DE)=HL
+  {0xED, "LHLX", 0, " ", " ", 0, "LHLX", "", ""}, // HL=(DE)
+  {0xDD, "JNUI", 0, " ", " ", 2, "JP NU,", "", ""}, // jump <address> if flag bit 5 (underflow) clear. See below
+  {0xFD, "JUI", 0, " ", " ", 2, "JP U,", "", ""}, // jump <address> if flag bit 5 (underflow) set. See below
+
+  {0xFF, "ENDO", 0, " ", " ", 0, "", "", ""}, // End of table
 };
+
+// ;new flag bits in F:
+// ;bit 76543210
+// ;bit SZUHxPVC
+// ;S=sign
+// ;Z=zero
+// ;U=underflow (opcode.doc calls this T for "true sign")
+// ;H=half-carry
+// ;x=unused
+// ;P=Parity even
+// ;V=oVerflow  (opcode.doc calls this O for Overflow)
+// ;C=Carry
+// http://www.club100.org/memfiles/index.php?&direction=0&order=&directory=Willard%20Goosey/Linux%20cross%20development
+
+// https://162.250.75.198/files/LIBRARY_web8201/M100SIG/Lib-08-Tech-Programming/OPTEST.DOC
+/*
+    The only unspecified instruction left is RST V (CB), a software
+    interrupt which causes program execution to branch to location 0040 if
+    the V flag (two's complement overflow, bit 1) is set.  Since location
+    0040 is in ROM, and the only thing there is a BASIC lookup table, this
+    is a particularly useless instruction for Model 100 users.  Try it if
+    you like, but even proper execution will only send your Model 100 into
+    never-never land.
+*/

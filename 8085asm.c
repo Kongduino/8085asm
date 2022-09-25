@@ -218,8 +218,7 @@ int parse(char * line) {
         exit(-1);
       }
     }
-  }
-  while (strcmp(opcode[i++].men, "ENDO") != 0);
+  } while (strcmp(opcode[i++].men, "ENDO") != 0);
   //busca pseudo
   if (strcmp("ORG", men) == 0) {
     addr = parsearg(arg1, line);
@@ -329,7 +328,6 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "BRKCHK"); labels[labelsc++].value = 0x7283;
   strcpy(labels[labelsc].nome, "CARDET"); labels[labelsc++].value = 0x6EEF;
   strcpy(labels[labelsc].nome, "CASIN"); labels[labelsc++].value = 0x14B0;
-  strcpy(labels[labelsc].nome, "CHGET"); labels[labelsc++].value = 0x12CB;
   strcpy(labels[labelsc].nome, "CHGET"); labels[labelsc++].value = 0x12CB;
   strcpy(labels[labelsc].nome, "CHKDC"); labels[labelsc++].value = 0x5AA9;
   strcpy(labels[labelsc].nome, "CHSNS"); labels[labelsc++].value = 0x13DB;
