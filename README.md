@@ -166,3 +166,7 @@ File size: 249. This matches memc. Goodie.
 CLEAR 256,62710
 All done!
 ```
+
+**2022/09/26**
+
+The compiler now ONLY runs twice over the same code if the computed TOP address after the first run differs from the source file's ORG address. If they're identical there's no need to run twice.
