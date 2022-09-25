@@ -170,3 +170,22 @@ All done!
 **2022/09/26**
 
 The compiler now ONLY runs twice over the same code if the computed TOP address after the first run differs from the source file's ORG address. If they're identical there's no need to run twice.
+
+```sh
+> 8085asm small\ wordle.asm
+Opening file: small wordle.asm
+LCGamboa 8085 assembler 2008
+
+* Saving small wordle.map:
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (357 bytes):
+* Saving small wordle.hex, small wordle.co and small wordle.do:
+File size: 357. This matches memc. Goodie.
+CLEAR 256,62602
+All done!
+
+
+TOP is 0xf48b. ORG is 0xf48b
+Sweet. TOP = ORG, no need to recompile!
+Done...
+```
