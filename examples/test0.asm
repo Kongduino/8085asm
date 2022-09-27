@@ -1,178 +1,237 @@
-	ORG 0xF3CE
+	ORG 0xF2AF
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
-			CALL HOME
-			MVI A,10
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
-			MVI A,1
-			MOV M,A ; cursor 10,1
-			LXI H, VGREET
-			CALL DISPLAY
-			MVI A,1
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
-			MVI A,4
-			MOV M,A ; cursor 1,4
-			LXI H,VKEY
-			CALL DISPLAY
+	CALL HOME
+	MVI A,10
+	LXI H,CSRX
+	MOV M,A
+	LXI H,CSRY
+	MVI A,1
+	MOV M,A ; cursor 10,1
+	LXI H, VGREET
+	CALL DISPLAY
+	MVI A,1
+	LXI H,CSRX
+	MOV M,A
+	LXI H,CSRY
+	MVI A,4
+	MOV M,A ; cursor 1,4
+	LXI H,VKEY
+	CALL DISPLAY
 LOOP:	MVI A,11
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
-			MVI A,4
-			MOV M,A ; cursor 11,4
+	LXI H,CSRX
+	MOV M,A
+	LXI H,CSRY
+	MVI A,4
+	MOV M,A ; cursor 11,4
 LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
-			JNZ HDLKBD
+	JNZ HDLKBD
 LOOP02:	CALL RCVX ; check rs232 queue
-			JZ LOOP01
-			LXI H,CSRY
-			MVI A,8
-			MOV M,A
-			LXI H,POSX
-			MOV A,M
-			LXI H,CSRX
-			MOV M,A ; cursor X,8
-			CPI 1
-			JNZ LOOP04 ; if X = 1 we're on a new line, erase lines 6 & 8
-			LXI H,CSRY
-			MVI A,6
-			MOV M,A
-			CALL ERAEOL
-			LXI H,CSRY
-			MVI A,8
-			MOV M,A
-			CALL ERAEOL
+	JZ LOOP01
+	LXI H,CSRY
+	MVI A,8
+	MOV M,A
+	LXI H,POSX
+	MOV A,M
+	LXI H,CSRX
+	MOV M,A ; cursor X,8
+	CPI 1
+	JNZ LOOP04 ; if X = 1 we're on a new line, erase lines 6 & 8
+	LXI H,CSRY
+	MVI A,6
+	MOV M,A
+	CALL ERAEOL
+	LXI H,CSRY
+	MVI A,8
+	MOV M,A
+	CALL ERAEOL
 LOOP04:	CALL RV232C
-			CPI 10
-			JZ LOOP03 ; we have a line if it's lf
-			CPI 13
-			JZ LOOP02 ; skip if it's cr
-			CALL LCD
-			LXI H,POSX
-			MOV A,M
-			INR A
-			MOV M,A
-			CPI 40
-			JNZ LOOP02
-			MVI A,1
-			MOV M,A
-			JMP LOOP02
+	CPI 10
+	JZ LOOP03 ; we have a line if it's lf
+	CPI 13
+	JZ LOOP02 ; skip if it's cr
+	CALL LCD
+	LXI H,POSX
+	MOV A,M
+	INR A
+	MOV M,A
+	CPI 40
+	JNZ LOOP02
+	MVI A,1
+	MOV M,A
+	JMP LOOP02
 LOOP03:	LXI H,POSX
-			MVI A,1
-			MOV M,A
-			JMP LOOP ; we should handle the line. for now just loop back
+	MVI A,1
+	MOV M,A
+	JMP LOOP ; we should handle the line. For now just loop back
 HDLKBD:	CPI 81 ; Q
-			JZ,THEEND
-			CPI 113 ; q
-			JZ,THEEND
-			CPI 80 ; P
-			JZ, PING
-			CPI 112 ; P
-			JZ, PING
-			JMP LOOP01
+	JZ THEEND
+	CPI 113 ; q
+	JZ THEEND
+	CPI 80 ; P
+	JZ  PING
+	CPI 112 ; P
+	JZ  PING
+	CPI 0x46 ; F
+	JZ  DOFREQ
+	CPI 0x66 ; f
+	JZ  DOFREQ
+	CPI 0x42 ; B
+	JZ  DOBW
+	CPI 0x62 ; b
+	JZ  DOBW
+	JMP LOOP01
 PING:	LXI H,CSRY
-			MVI A,5
-			MOV M,A
-			CALL ERAEOL
-			LXI H,CSRY
-			MVI A,7
-			MOV M,A ; cursor 7,6
-			CALL ERAEOL
-			LXI H,CSRY
-			MVI A,8
-			MOV M,A ; cursor 1,8
-			CALL ERAEOL
-			LXI H,NPING
-			CALL SNDSRL
-			JMP LOOP
+	MVI A,5
+	MOV M,A
+	CALL ERAEOL
+	LXI H,CSRY
+	MVI A,7
+	MOV M,A ; cursor 7,6
+	CALL ERAEOL
+	LXI H,CSRY
+	MVI A,8
+	MOV M,A ; cursor 1,8
+	CALL ERAEOL
+	LXI H,NPING
+	CALL SNDSRL
+	JMP LOOP
 
 THEEND:	CALL CLSCOM
-			JMP MENU
+	JMP MENU
 
 DOFREQ:	CALL CLS
-			CALL HOME
-			LXI H, FQMENU
-			CALL DISPLAY
-			CALL CHGET
-			CPI 0x42 ; B
-			JZ,LOOP00
-			CPI 0x62 ; q
-			JZ,LOOP00
-			CPI 0x30 ; 0
-			JZ DOFREQ0
-			CPI 0x31 ; 1
-			JZ DOFREQ1
-			CPI 0x32 ; 2
-			JZ DOFREQ2
-			CPI 0x33 ; 3
-			JZ DOFREQ3
-			JMP DOFREQ
+	CALL HOME
+	LXI H, FQMENU
+	CALL DISPLAY
+DOFREQH:	CALL HOME
+	CALL CHGET
+	CPI 0x42 ; B(ack)
+	JZ LOOP00
+	CPI 0x42 ; b(ack)
+	JZ LOOP00
+	CPI 0x51 ; q(uit)
+	JZ MENU
+	CPI 0x71 ; q(uit)
+	JZ MENU
+	CPI 0x30 ; 0
+	JZ DOFREQ0
+	CPI 0x31 ; 1
+	JZ DOFREQ1
+	CPI 0x32 ; 2
+	JZ DOFREQ2
+	CPI 0x33 ; 3
+	JZ DOFREQ3
+	CPI 0x34 ; 4
+	JZ DOFREQ4
+	CPI 0x35 ; 5
+	JZ DOFREQ5
+	CALL MYBEEP
+	JMP DOFREQH
 
 DOFREQ0:	LXI H,FCHOICE0
-			CALL SNDSRL
-			JMP DOFREQ
+	JMP DOFREQX
 DOFREQ1:	LXI H,FCHOICE1
-			CALL SNDSRL
-			JMP DOFREQ
+	JMP DOFREQX
 DOFREQ2:	LXI H,FCHOICE2
-			CALL SNDSRL
-			JMP DOFREQ
+	JMP DOFREQX
 DOFREQ3:	LXI H,FCHOICE3
-			CALL SNDSRL
-			JMP DOFREQ
+	JMP DOFREQX
+DOFREQ4:	LXI H,FCHOICE4
+	JMP DOFREQX
+DOFREQ5:	LXI H,FCHOICE5
+DOFREQX:	CALL SNDSRL
+	JMP DOFREQH
+
+DOBW:	CALL CLS
+	CALL HOME
+	LXI H, BWMENU
+	CALL DISPLAY
+DOBWH:	CALL CHGET
+	CPI 0x42 ; B(ack)
+	JZ LOOP00
+	CPI 0x62 ; b(ack)
+	JZ LOOP00
+	CPI 0x51 ; q(uit)
+	JZ MENU
+	CPI 0x71 ; q(uit)
+	JZ MENU
+	CPI 0x36 ; 6
+	JZ DOBW0
+	CPI 0x37 ; 7
+	JZ DOBW1
+	CPI 0x38 ; 8
+	JZ DOBW2
+	CPI 0x39 ; 9
+	JZ DOBW3
+	CALL MYBEEP
+	JMP DOBWH
+
+MYBEEP:	LXI D, 4433 ; C# octave 2
+	MVI B, 20 ; 20 50th of a second
+	JMP MUSIC
+
+DOBW0:	LXI H,BCHOICE0
+	JMP DOBWX
+DOBW1:	LXI H,BCHOICE1
+	JMP DOBWX
+DOBW2:	LXI H,BCHOICE2
+	JMP DOBWX
+DOBW3:	LXI H,BCHOICE3
+DOBWX:	CALL SNDSRL
+	JMP DOBWH
 
 INITSRL:	CALL CLSCOM
-			MVI H,9
-			MVI L, 1CH ; 0b11100 = 8N1
-			SETC ; FOR RS232 <--- Very important!
-			CALL INZCOM ; init com
-			MVI A,35
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
-			MVI A,1
-			MOV M,A ; cursor 35,1
-			LXI H, STAT ; display 5 setup bytes
-			MOV A,M
-			CALL LCD ; baud
-			INX H
-			MOV A,M
-			CALL LCD ; length
-			INX H
-			MOV A,M
-			CALL LCD ; parity
-			INX H
-			MOV A,M
-			CALL LCD ; stop bits
-			INX H
-			MOV A,M
-			CALL LCD ; XON/XOFF
-			LXI H,SRLGREET
-			CALL SNDSRL
-			RET
+	MVI H,9
+	MVI L, 1CH ; 0b11100 = 8N1
+	SETC ; FOR RS232 <--- Very important!
+	CALL INZCOM ; init com
+	MVI A,35
+	LXI H,CSRX
+	MOV M,A
+	LXI H,CSRY
+	MVI A,1
+	MOV M,A ; cursor 35,1
+	LXI H, STAT ; display 5 setup bytes
+	MOV A,M
+	CALL LCD ; baud
+	INX H
+	MOV A,M
+	CALL LCD ; length
+	INX H
+	MOV A,M
+	CALL LCD ; parity
+	INX H
+	MOV A,M
+	CALL LCD ; stop bits
+	INX H
+	MOV A,M
+	CALL LCD ; XON/XOFF
+	LXI H,SRLGREET
+	CALL SNDSRL
+	RET
 
-SNDSRL: 	PUSH H
-			IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
-			; register with an input from port C8. This is done, for example, at 6CE5.
-			MVI A,1
-			LXI H,CSRX
-			MOV M,A
-			LXI H,CSRY
-			MVI A,6
-			MOV M,A ; cursor 1,6
-			CALL ERAEOL
-			POP H
-SNDSRL0: 	MOV A,M
-			CPI 0
-			RZ
-			CALL SD232C
-			MOV A,M
-			CALL LCD ; output the string also to LCD
-			INX H
-			JMP SNDSRL0
+SNDSRL:	PUSH H
+	IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
+	; register with an input from port C8. This is done, for example, at 6CE5.
+	MVI A,1
+	LXI H,CSRX
+	MOV M,A
+	LXI H,CSRY
+	MVI A,6
+	MOV M,A ; cursor 1,6
+	CALL ERAEOL
+	LXI H,VSENDING
+	CALL DISPLAY
+	POP H
+SNDSRL0:	MOV A,M
+	CPI 0
+	RZ
+	CALL SD232C
+	MOV A,M
+	CALL LCD ; output the string also to LCD
+	INX H
+	JMP SNDSRL0
 
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
@@ -180,23 +239,44 @@ VGREET:	DS "LORA MESSENGER"
 	DB 0
 VKEY:	DS "ENTER KEY:"
 	DB 0
-NPING: DS "AT+PSEND:50494E48"
-		DB 10,0
-SRLGREET:	DS "Hello"
+NPING: DS "/p"
+	DB 10,0
+SRLGREET:	DS "/h"
+	DB 10,0
+VSENDING:	DS "Sending: "
 	DB 0
 
-FQMENU0:	"Enter freq: "
-		DB 0
-FQMENU:	DS "(0)868.000 (1)868.125 (2)868.250"
-		DB 13,10
-		DS "(3)915.000 (B)ACK"
-		DB 0
-FCHOICE0: "AT+PFREQ=868000000"
-		DB 13, 10, 0
-FCHOICE0: "AT+PFREQ=868125000"
-		DB 13, 10, 0
-FCHOICE0: "AT+PFREQ=868250000"
-		DB 13, 10, 0
-FCHOICE0: "AT+PFREQ=915000000"
-		DB 13, 10, 0
 POSX: DB 1
+
+FQMENU:	"Enter freq:"
+	DB 13,10
+	DS "(0)868 (1)868.125 (2)868.250"
+	DB 13,10
+	DS "(3)915 (4)915.125 (5)915.250 (B)ACK"
+	DB 0
+FCHOICE0: DS "/FQ868"
+	DB 10, 0
+FCHOICE1: DS "/FQ868.125"
+	DB 10, 0
+FCHOICE2: DS "/FQ868.25"
+	DB 10, 0
+FCHOICE3: DS "/FQ915"
+	DB 10, 0
+FCHOICE4: DS "/FQ915.125"
+	DB 10, 0
+FCHOICE5: DS "/FQ915.25"
+	DB 10, 0
+
+BWMENU:	"Enter bandwidth:"
+	DS "(6)62.5 KHz (7)125 KHz (8)250 KHz"
+	DB 13,10
+	DS "(9)500 (B)ACK (Q)uit"
+	DB 0
+BCHOICE0: DS "/BW6"
+	DB 10, 0
+BCHOICE1: DS "/BW7"
+	DB 10, 0
+BCHOICE2: DS "/BW8"
+	DB 10, 0
+BCHOICE3: DS "/BW9"
+	DB 10, 0
