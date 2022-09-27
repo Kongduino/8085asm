@@ -1,4 +1,4 @@
-	ORG 0xF2AF
+	ORG 0xF1BF
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
 	CALL HOME
@@ -26,43 +26,7 @@ LOOP:	MVI A,11
 	MOV M,A ; cursor 11,4
 LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ HDLKBD
-LOOP02:	CALL RCVX ; check rs232 queue
-	JZ LOOP01
-	LXI H,CSRY
-	MVI A,8
-	MOV M,A
-	LXI H,POSX
-	MOV A,M
-	LXI H,CSRX
-	MOV M,A ; cursor X,8
-	CPI 1
-	JNZ LOOP04 ; if X = 1 we're on a new line, erase lines 6 & 8
-	LXI H,CSRY
-	MVI A,6
-	MOV M,A
-	CALL ERAEOL
-	LXI H,CSRY
-	MVI A,8
-	MOV M,A
-	CALL ERAEOL
-LOOP04:	CALL RV232C
-	CPI 10
-	JZ LOOP03 ; we have a line if it's lf
-	CPI 13
-	JZ LOOP02 ; skip if it's cr
-	CALL LCD
-	LXI H,POSX
-	MOV A,M
-	INR A
-	MOV M,A
-	CPI 40
-	JNZ LOOP02
-	MVI A,1
-	MOV M,A
-	JMP LOOP02
-LOOP03:	LXI H,POSX
-	MVI A,1
-	MOV M,A
+	CALL HDLCOM ; check COM for incoming text
 	JMP LOOP ; we should handle the line. For now just loop back
 HDLKBD:	CPI 81 ; Q
 	JZ THEEND
@@ -100,13 +64,55 @@ PING:	LXI H,CSRY
 THEEND:	CALL CLSCOM
 	JMP MENU
 
+HDLCOM:	CALL RCVX ; check rs232 queue
+	RZ
+	LXI H,CSRY
+	MVI A,8
+	MOV M,A
+	LXI H,POSX
+	MOV A,M
+	LXI H,CSRX
+	MOV M,A ; cursor X,8
+	CPI 1
+	JNZ HDLCOM0 ; if X = 1 we're on a new line, erase lines 6 & 8
+	LXI H,CSRY
+	MVI A,6
+	MOV M,A
+	CALL ERAEOL
+	LXI H,CSRY
+	MVI A,8
+	MOV M,A
+	CALL ERAEOL
+HDLCOM0:	CALL RV232C
+	CPI 10
+	JZ HDLCOM1 ; we have a line if it's lf
+	CPI 13
+	JZ HDLCOM0 ; skip if it's cr
+	CALL LCD
+	LXI H,POSX
+	MOV A,M
+	INR A
+	MOV M,A
+	CPI 40
+	JNZ HDLCOM0
+	MVI A,1
+	MOV M,A
+	JMP HDLCOM0
+HDLCOM1:	LXI H,POSX ; reset POSX
+	MVI A,1
+	MOV M,A
+	RET
+
 DOFREQ:	CALL CLS
 	CALL HOME
 	LXI H, FQMENU
 	CALL DISPLAY
-DOFREQH:	CALL HOME
-	CALL CHGET
-	CPI 0x42 ; B(ack)
+	CALL HOME
+DOFREQH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+	JNZ DOFREQH0
+	CALL HDLCOM ; check COM for incoming text
+	JMP DOFREQH ; we should handle the line. For now just loop back
+DOFREQH0:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x42 ; b(ack)
 	JZ LOOP00
@@ -147,8 +153,12 @@ DOBW:	CALL CLS
 	CALL HOME
 	LXI H, BWMENU
 	CALL DISPLAY
-DOBWH:	CALL CHGET
-	CPI 0x42 ; B(ack)
+	CALL HOME
+DOBWH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+	JNZ DOBWH1
+	CALL HDLCOM ; check COM for incoming text
+	JMP DOFREQH0 ; we should handle the line. For now just loop back
+DOBWH1:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x62 ; b(ack)
 	JZ LOOP00
@@ -167,10 +177,6 @@ DOBWH:	CALL CHGET
 	CALL MYBEEP
 	JMP DOBWH
 
-MYBEEP:	LXI D, 4433 ; C# octave 2
-	MVI B, 20 ; 20 50th of a second
-	JMP MUSIC
-
 DOBW0:	LXI H,BCHOICE0
 	JMP DOBWX
 DOBW1:	LXI H,BCHOICE1
@@ -180,6 +186,63 @@ DOBW2:	LXI H,BCHOICE2
 DOBW3:	LXI H,BCHOICE3
 DOBWX:	CALL SNDSRL
 	JMP DOBWH
+
+DOSF:	CALL CLS
+	CALL HOME
+	LXI H, SFMENU
+	CALL DISPLAY
+	CALL HOME
+DOSFH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+	JNZ DOSFH1
+	CALL HDLCOM ; check COM for incoming text
+	JMP DOFREQH0 ; we should handle the line. For now just loop back
+DOSFH1:	CPI 0x42 ; B(ack)
+	JZ LOOP00
+	CPI 0x62 ; b(ack)
+	JZ LOOP00
+	CPI 0x51 ; q(uit)
+	JZ MENU
+	CPI 0x71 ; q(uit)
+	JZ MENU
+	CPI 0x36 ; 6
+	JZ DOSF6
+	CPI 0x37 ; 7
+	JZ DOSF7
+	CPI 0x38 ; 8
+	JZ DOSF8
+	CPI 0x39 ; 9
+	JZ DOSF9
+	CPI 0x30 ; 0
+	JZ DOSF10
+	CPI 0x39 ; 1
+	JZ DOSF11
+	CPI 0x32 ; 2
+	JZ DOSF12
+	CALL MYBEEP
+	JMP DOSFH
+
+DOSF6:	LXI H,SFCHOICE6
+	JMP DOSFX
+DOSF7:	LXI H,SFCHOICE7
+	JMP DOSFX
+DOSF8:	LXI H,SFCHOICE8
+	JMP DOSFX
+DOSF9:	LXI H,SFCHOICE9
+DOSF10:	LXI H,SFCHOICE10
+DOSF11:	LXI H,SFCHOICE11
+DOSF12:	LXI H,SFCHOICE12
+DOSFX:	CALL SNDSRL
+	JMP DOSFH
+
+MYBEEP:	LXI D, 4433 ; C# octave 2
+	MVI B, 20 ; 20 50th of a second
+	CALL MUSIC
+	LXI D, 2211 ; C# octave 2
+	MVI B, 20 ; 20 50th of a second
+	CALL MUSIC
+	LXI D, 4433 ; C# octave 2
+	MVI B, 20 ; 20 50th of a second
+	JMP MUSIC
 
 INITSRL:	CALL CLSCOM
 	MVI H,9
@@ -279,4 +342,22 @@ BCHOICE1: DS "/BW7"
 BCHOICE2: DS "/BW8"
 	DB 10, 0
 BCHOICE3: DS "/BW9"
+	DB 10, 0
+
+SFMENU:	"Enter Spreading Factor:"
+	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
+	DB 0
+SFCHOICE6: DS "/SF6"
+	DB 10, 0
+SFCHOICE7: DS "/SF7"
+	DB 10, 0
+SFCHOICE8: DS "/SF8"
+	DB 10, 0
+SFCHOICE9: DS "/SF9"
+	DB 10, 0
+SFCHOICE10: DS "/SF10"
+	DB 10, 0
+SFCHOICE11: DS "/SF11"
+	DB 10, 0
+SFCHOICE12: DS "/SF12"
 	DB 10, 0
