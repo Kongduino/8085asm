@@ -1,4 +1,4 @@
-	ORG 0xF4f7 ; run 8085asm once first to know the correct ORG
+	ORG 0xF400 ; run 8085asm once first to know the correct ORG
 LOOP:	CALL CLS
 	MVI A,1 ; display 8 rows
 LOOP00:	PUSH PSW

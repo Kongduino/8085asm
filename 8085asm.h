@@ -319,7 +319,7 @@ static Opcode opcode[] = {
   {0xD9, "SHLX", 0, " ", " ", 0}, // (DE)=HL
   {0xED, "LHLX", 0, " ", " ", 0}, // HL=(DE)
   {0xDD, "JNUI", 0, " ", " ", 2}, // jump <address> if flag bit 5 (underflow) clear. See below
-  {0xFD, "JUI", 0, " ", " ", 2}, // jump <address> if flag bit 5 (underflow) set. See below
+  {0xFD, "JUI", 0, " ", " ", 2},  // jump <address> if flag bit 5 (underflow) set. See below
 
-  {0xFF, "ENDO", 0, " ", " ", 0}  //fim da tabela
+  {0xFF, "ENDO", 0, " ", " ", 0}  // end of the table
 };
