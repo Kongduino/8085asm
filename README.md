@@ -189,3 +189,38 @@ TOP is 0xf48b. ORG is 0xf48b
 Sweet. TOP = ORG, no need to recompile!
 Done...
 ```
+
+**2022/09/27**
+
+The compiler saves the 2nd source file, if it recompiles, to `filename.ADDR.asm` (where `ADDR` is the ORG address), instead of `filename.copy.asm`.
+
+```sh
+> 8085asm test0.asm
+Opening file: test0.asm
+LCGamboa 8085 assembler 2008
+
+* Saving test0.map:
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (1073 bytes):
+* Saving test0.hex, test0.co and test0.do:
+File size: 1073. This matches memc. Goodie.
+CLEAR 256,61886
+All done!
+
+
+TOP is 0xf1bf. ORG is 0xf200
+TOP & iaddr are different. Rewriting source to test0.f1bf.asm...
+File test0.co was deleted successfully.
+File test0.f1bf.asm was NOT deleted successfully.
+Opening file: test0.asm
+line = 	ORG; kwd = ORG
+	ORG 0xF1BF
+Done...
+Compiling again...
+   Saving SYMBOLIC TABLE.
+* RAM occupied:  (1073 bytes):
+* Saving test0.hex, test0.co and test0.do:
+File size: 1073. This matches memc. Goodie.
+CLEAR 256,61886
+All done!
+```

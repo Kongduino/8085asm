@@ -422,6 +422,10 @@ int main(int argc, char** argv) {
     printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
     return 1;
   }
+  strcpy(fname1, fnamep);
+  char tmp[12] = {0};
+  sprintf(tmp, ".%04x.asm", TOP);
+  strcat(fname1, tmp);
   printf("TOP & iaddr are different. Rewriting source to %s...\n", fname1);
   if (remove(fname3) == 0) {
     printf("File %s was deleted successfully.\n", fname3);
