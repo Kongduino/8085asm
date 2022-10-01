@@ -1,4 +1,4 @@
-	ORG 0xF1BF
+	ORG 0xf0ed
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
 	CALL HOME
@@ -27,7 +27,7 @@ LOOP:	MVI A,11
 LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ HDLKBD
 	CALL HDLCOM ; check COM for incoming text
-	JMP LOOP ; we should handle the line. For now just loop back
+	JMP LOOP
 HDLKBD:	CPI 81 ; Q
 	JZ THEEND
 	CPI 113 ; q
@@ -111,7 +111,7 @@ DOFREQ:	CALL CLS
 DOFREQH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ DOFREQH0
 	CALL HDLCOM ; check COM for incoming text
-	JMP DOFREQH ; we should handle the line. For now just loop back
+	JMP DOFREQH
 DOFREQH0:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x42 ; b(ack)
@@ -157,7 +157,7 @@ DOBW:	CALL CLS
 DOBWH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ DOBWH1
 	CALL HDLCOM ; check COM for incoming text
-	JMP DOFREQH0 ; we should handle the line. For now just loop back
+	JMP DOBWH
 DOBWH1:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x62 ; b(ack)
@@ -195,7 +195,7 @@ DOSF:	CALL CLS
 DOSFH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ DOSFH1
 	CALL HDLCOM ; check COM for incoming text
-	JMP DOFREQH0 ; we should handle the line. For now just loop back
+	JMP DOSFH
 DOSFH1:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x62 ; b(ack)
@@ -228,11 +228,54 @@ DOSF7:	LXI H,SFCHOICE7
 DOSF8:	LXI H,SFCHOICE8
 	JMP DOSFX
 DOSF9:	LXI H,SFCHOICE9
+	JMP DOSFX
 DOSF10:	LXI H,SFCHOICE10
+	JMP DOSFX
 DOSF11:	LXI H,SFCHOICE11
+	JMP DOSFX
 DOSF12:	LXI H,SFCHOICE12
 DOSFX:	CALL SNDSRL
 	JMP DOSFH
+
+DOAP:	CALL CLS
+	CALL HOME
+	LXI H, APMENU
+	CALL DISPLAY
+	CALL HOME
+DOAPH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+	JNZ DOAPH1
+	CALL HDLCOM ; check COM for incoming text
+	JMP DOAPH
+DOAPH1:	CPI 0x42 ; B(ack)
+	JZ LOOP00
+	CPI 0x62 ; b(ack)
+	JZ LOOP00
+	CPI 0x51 ; q(uit)
+	JZ MENU
+	CPI 0x71 ; q(uit)
+	JZ MENU
+	CPI 0x30 ; 0
+	JZ DOAP10
+	CPI 0x39 ; 1
+	JZ DOAP1
+	CPI 0x32 ; 2
+	JZ DOAP2
+	CPI 0x35 ; 5
+	JZ DOAP5
+	CALL MYBEEP
+	JMP DOAPH
+
+DOAP10:	LXI H,APCHOICE10
+	JMP DOAPX
+DOAP1:	LXI H,APCHOICE1
+	JMP DOAPX
+DOAP2:	LXI H,APCHOICE2
+	JMP DOAPX
+DOAP5:	LXI H,APCHOICE5
+	JMP DOAPX
+DOAPO:	LXI H,APCHOICEO
+DOAPX:	CALL SNDSRL
+	JMP DOAPH
 
 MYBEEP:	LXI D, 4433 ; C# octave 2
 	MVI B, 20 ; 20 50th of a second
@@ -298,7 +341,9 @@ SNDSRL0:	MOV A,M
 
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
-	DS "(P)ING (F)REQUENCY (B)W (S)F (Q)UIT"
+	DS "(P)ING (F)requency (B)W (S)F (T)x Power
+	DB 13,10
+	DS "(A)uto Ping (Q)uit"
 	DB 0
 VKEY:	DS "ENTER KEY:"
 	DB 0
@@ -345,6 +390,7 @@ BCHOICE3: DS "/BW9"
 	DB 10, 0
 
 SFMENU:	"Enter Spreading Factor:"
+  DB 13,10
 	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
 	DB 0
 SFCHOICE6: DS "/SF6"
@@ -360,4 +406,19 @@ SFCHOICE10: DS "/SF10"
 SFCHOICE11: DS "/SF11"
 	DB 10, 0
 SFCHOICE12: DS "/SF12"
+	DB 10, 0
+
+APMENU:	"Auto PING:"
+  DB 13,10
+	DS "(O)ff (1) mn (2) mn (5) mn 1(0) mn"
+	DB 0
+APCHOICEO: DS "/AP0"
+	DB 10, 0
+APCHOICE1: DS "/AP1"
+	DB 10, 0
+APCHOICE2: DS "/AP2"
+	DB 10, 0
+APCHOICE5: DS "/AP5"
+	DB 10, 0
+APCHOICE10: DS "/AP10"
 	DB 10, 0
