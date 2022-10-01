@@ -1,4 +1,4 @@
-	ORG 0xf0ed
+	ORG 0xf0e3
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
 	CALL HOME
@@ -262,6 +262,10 @@ DOAPH1:	CPI 0x42 ; B(ack)
 	JZ DOAP2
 	CPI 0x35 ; 5
 	JZ DOAP5
+	CPI 0x4f ; O
+	JZ DOAPO
+	CPI 0x6f ; O
+	JZ DOAPO
 	CALL MYBEEP
 	JMP DOAPH
 
