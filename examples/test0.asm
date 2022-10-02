@@ -1,33 +1,35 @@
-	ORG 0xf0e3
+	ORG 0xf0c9
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
-	CALL HOME
+	; CALL HOME
 	MVI A,10
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,1
-	MOV M,A ; cursor 10,1
+	MVI B,1
+	CALL CURSOR ; cursor 10,1
 	LXI H, VGREET
 	CALL DISPLAY
 	MVI A,1
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,4
-	MOV M,A ; cursor 1,4
+	MVI B,4
+	CALL CURSOR ; cursor 1,4
 	LXI H,VKEY
 	CALL DISPLAY
+	CALL FLUSHCOM
 LOOP:	MVI A,11
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,4
-	MOV M,A ; cursor 11,4
+	MVI B,4
+	CALL CURSOR ; cursor 11,4
 LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ HDLKBD
 	CALL HDLCOM ; check COM for incoming text
-	JMP LOOP
+	JMP LOOP ; we should handle the line. For now just loop back
+
+CURSOR:	; a = x. b = y
+	PUSH H ; preserve HL
+	LXI H, CSRX
+	MOV M, A
+	LXI H, CSRY
+	MOV M, B ; cursor X, Y
+	POP H ; retrieve HL
+	RET
+
 HDLKBD:	CPI 81 ; Q
 	JZ THEEND
 	CPI 113 ; q
@@ -44,18 +46,27 @@ HDLKBD:	CPI 81 ; Q
 	JZ  DOBW
 	CPI 0x62 ; b
 	JZ  DOBW
+	CPI 0x53 ; S
+	JZ  DOSF
+	CPI 0x73 ; s
+	JZ  DOSF
+	CPI 0x54 ; T
+	JZ  DOSTATUS
+	CPI 0x74 ; T
+	JZ  DOSTATUS
+	CALL MYBEEP
 	JMP LOOP01
-PING:	LXI H,CSRY
-	MVI A,5
-	MOV M,A
+PING:	MVI A,1
+	MVI B,8
+	CALL CURSOR ; cursor 1,8
 	CALL ERAEOL
-	LXI H,CSRY
-	MVI A,7
-	MOV M,A ; cursor 7,6
+	MVI A,1
+	MVI B,7
+	CALL CURSOR ; cursor 1,7
 	CALL ERAEOL
-	LXI H,CSRY
-	MVI A,8
-	MOV M,A ; cursor 1,8
+	MVI A,1
+	MVI B,6
+	CALL CURSOR ; cursor 1,6
 	CALL ERAEOL
 	LXI H,NPING
 	CALL SNDSRL
@@ -64,54 +75,40 @@ PING:	LXI H,CSRY
 THEEND:	CALL CLSCOM
 	JMP MENU
 
-HDLCOM:	CALL RCVX ; check rs232 queue
-	RZ
-	LXI H,CSRY
-	MVI A,8
-	MOV M,A
-	LXI H,POSX
-	MOV A,M
-	LXI H,CSRX
-	MOV M,A ; cursor X,8
-	CPI 1
-	JNZ HDLCOM0 ; if X = 1 we're on a new line, erase lines 6 & 8
-	LXI H,CSRY
-	MVI A,6
-	MOV M,A
+DOSTATUS:	MVI A,1
+	MVI B,8
+	CALL CURSOR ; cursor 1,8
 	CALL ERAEOL
-	LXI H,CSRY
-	MVI A,8
-	MOV M,A
+	MVI A,1
+	MVI B,7
+	CALL CURSOR ; cursor 1,7
 	CALL ERAEOL
-HDLCOM0:	CALL RV232C
-	CPI 10
-	JZ HDLCOM1 ; we have a line if it's lf
-	CPI 13
-	JZ HDLCOM0 ; skip if it's cr
-	CALL LCD
-	LXI H,POSX
-	MOV A,M
-	INR A
-	MOV M,A
-	CPI 40
-	JNZ HDLCOM0
 	MVI A,1
-	MOV M,A
-	JMP HDLCOM0
-HDLCOM1:	LXI H,POSX ; reset POSX
-	MVI A,1
-	MOV M,A
-	RET
+	MVI B,6
+	CALL CURSOR ; cursor 1,6
+	CALL ERAEOL
+	LXI H,MSTATUS
+	CALL SNDSRL
+	JMP LOOP
 
 DOFREQ:	CALL CLS
 	CALL HOME
-	LXI H, FQMENU
+	LXI H, FQMENU0
 	CALL DISPLAY
-	CALL HOME
+	MVI A,1
+	MVI B,2
+	CALL CURSOR ; cursor 1,2
+	LXI H, FQMENU1
+	CALL DISPLAY
+	MVI A,1
+	MVI B,3
+	CALL CURSOR ; cursor 1,2
+	LXI H, FQMENU2
+	CALL DISPLAY
 DOFREQH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ DOFREQH0
 	CALL HDLCOM ; check COM for incoming text
-	JMP DOFREQH
+	JMP DOFREQH ; we should handle the line. For now just loop back
 DOFREQH0:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x42 ; b(ack)
@@ -157,7 +154,7 @@ DOBW:	CALL CLS
 DOBWH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JNZ DOBWH1
 	CALL HDLCOM ; check COM for incoming text
-	JMP DOBWH
+	JMP DOBWH ; we should handle the line. For now just loop back
 DOBWH1:	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x62 ; b(ack)
@@ -191,12 +188,15 @@ DOSF:	CALL CLS
 	CALL HOME
 	LXI H, SFMENU
 	CALL DISPLAY
-	CALL HOME
-DOSFH:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
-	JNZ DOSFH1
-	CALL HDLCOM ; check COM for incoming text
-	JMP DOSFH
-DOSFH1:	CPI 0x42 ; B(ack)
+	MVI A,1
+	MVI B,2
+	CALL CURSOR ; cursor 1,2
+	LXI H, SFMENU0
+	CALL DISPLAY
+DOSFH:	CALL HDLCOM ; check COM for incoming text
+	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
+	JZ DOSFH ; No key? Loop back
+	CPI 0x42 ; B(ack)
 	JZ LOOP00
 	CPI 0x62 ; b(ack)
 	JZ LOOP00
@@ -228,11 +228,8 @@ DOSF7:	LXI H,SFCHOICE7
 DOSF8:	LXI H,SFCHOICE8
 	JMP DOSFX
 DOSF9:	LXI H,SFCHOICE9
-	JMP DOSFX
 DOSF10:	LXI H,SFCHOICE10
-	JMP DOSFX
 DOSF11:	LXI H,SFCHOICE11
-	JMP DOSFX
 DOSF12:	LXI H,SFCHOICE12
 DOSFX:	CALL SNDSRL
 	JMP DOSFH
@@ -282,13 +279,13 @@ DOAPX:	CALL SNDSRL
 	JMP DOAPH
 
 MYBEEP:	LXI D, 4433 ; C# octave 2
-	MVI B, 20 ; 20 50th of a second
+	MVI B, 5 ; 5th of a second
 	CALL MUSIC
-	LXI D, 2211 ; C# octave 2
-	MVI B, 20 ; 20 50th of a second
+	LXI D, 8866 ; C# octave 2
+	MVI B, 5 ; 5th of a second
 	CALL MUSIC
 	LXI D, 4433 ; C# octave 2
-	MVI B, 20 ; 20 50th of a second
+	MVI B, 5 ; 5th of a second
 	JMP MUSIC
 
 INITSRL:	CALL CLSCOM
@@ -297,11 +294,8 @@ INITSRL:	CALL CLSCOM
 	SETC ; FOR RS232 <--- Very important!
 	CALL INZCOM ; init com
 	MVI A,35
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,1
-	MOV M,A ; cursor 35,1
+	MVI B,1
+	CALL CURSOR ; cursor 35,1
 	LXI H, STAT ; display 5 setup bytes
 	MOV A,M
 	CALL LCD ; baud
@@ -325,11 +319,8 @@ SNDSRL:	PUSH H
 	IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
 	; register with an input from port C8. This is done, for example, at 6CE5.
 	MVI A,1
-	LXI H,CSRX
-	MOV M,A
-	LXI H,CSRY
-	MVI A,6
-	MOV M,A ; cursor 1,6
+	MVI B,6
+	CALL CURSOR ; cursor 1,6
 	CALL ERAEOL
 	LXI H,VSENDING
 	CALL DISPLAY
@@ -343,28 +334,104 @@ SNDSRL0:	MOV A,M
 	INX H
 	JMP SNDSRL0
 
+FLUSHCOM:	IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
+	; register with an input from port C8. This is done, for example, at 6CE5.
+FLUSHCOM0:	CALL RCVX ; Checks RS232 queue. Returns number in A.
+	RZ
+	CALL RV232C ; Read the next char
+	RZ
+	JMP FLUSHCOM0 ; Loop until the buffer is empty
+
+HDLCOM:	CALL RCVX ; Checks RS232 queue. Returns number in A.
+	RZ
+	PUSH PSW ; Save # of chars
+	MVI A,1
+	MVI B,5
+	CALL CURSOR ; cursor 1,5
+	CALL ERAEOL
+	LXI H,NUMCHARS
+	CALL DISPLAY
+	POP PSW
+	PUSH PSW
+	MOV L,A ; Prints the number of chars available on line 5
+	MVI H,0
+	CALL PRTINT
+HDLCOM0:	POP PSW
+	CPI 0
+	RZ ; we read all the chars available
+	SUI 1
+	PUSH PSW
+	CALL RV232C ; Z flag set if OK, reset if error (PE, PF, OF).
+	JC HDLCOM2 ; C flag set if BREAK pressed. Need to POP PSW before returning
+	CPI 10
+	JZ HDLCOM1 ; we have a line if it's LF
+	CPI 13
+	JZ HDLCOM0 ; skip if it's CR
+	CPI 0x7E
+	JP HDLCOM0 ; skip if it's not ASCII
+	LXI D, POSX
+	LHLX ; HL=(DE)
+	LXI B, MYBUFFER
+	PUSH H
+	DAD B ; HL = MYBUFFER + POSX
+	MOV M,A
+	INX H
+	MVI A,0
+	MOV M,A ; Terminate the string
+	POP H
+	LXI D, POSX
+	INX H
+	SHLX ; (DE) = HL
+	JMP HDLCOM0
+HDLCOM1:	LXI H,POSX ; reset POSX
+	MVI A,1
+	MOV M,A
+	LXI H,POSY ; reset POSY
+	MVI A,6
+	MOV M,A
+	LXI D, CSRY
+	LXI H,0x0106
+	SHLX ; (DE) = HL
+	; cursor x 1 y 6 HOPEFULLY
+	CALL ERAEOL
+	LXI D, CSRY
+	LXI H,0x0107
+	SHLX ; (DE) = HL
+	; cursor x 1 y 7 HOPEFULLY
+	CALL ERAEOL
+	LXI H,MYBUFFER
+	CALL DISPLAY
+	LXI D, POSX
+	LXI H,0
+	SHLX ; (DE) = HL
+	; Reset the buffer index
+	JP HDLCOM0 ; TODO: deal with the line's content
+	; Like decide if it's a message or something less important.
+	; On the BastWAN format the messages it sends with a prefix
+	; S- System info. M- Incoming Message. etc
+HDLCOM2: POP PSW
+	RET
+
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
-	DS "(P)ING (F)requency (B)W (S)F (T)x Power
+	DS "(P)ING (F)REQUENCY (B)W (S)F"
 	DB 13,10
-	DS "(A)uto Ping (Q)uit"
+	DS "S(T)ATUS (A)uto PING (Q)uit"
 	DB 0
 VKEY:	DS "ENTER KEY:"
 	DB 0
 NPING: DS "/p"
 	DB 10,0
-SRLGREET:	DS "/h"
+SRLGREET:	DS "/DNT102"
 	DB 10,0
 VSENDING:	DS "Sending: "
 	DB 0
 
-POSX: DB 1
-
-FQMENU:	"Enter freq:"
-	DB 13,10
-	DS "(0)868 (1)868.125 (2)868.250"
-	DB 13,10
-	DS "(3)915 (4)915.125 (5)915.250 (B)ACK"
+FQMENU0:	"Enter freq:"
+	DB 0
+FQMENU1:	DS "(0)868 (1)868.125 (2)868.250"
+	DB 0
+FQMENU2:	DS "(3)915 (4)915.125 (5)915.250 (B)ack"
 	DB 0
 FCHOICE0: DS "/FQ868"
 	DB 10, 0
@@ -380,9 +447,10 @@ FCHOICE5: DS "/FQ915.25"
 	DB 10, 0
 
 BWMENU:	"Enter bandwidth:"
+	DB 13,10
 	DS "(6)62.5 KHz (7)125 KHz (8)250 KHz"
 	DB 13,10
-	DS "(9)500 (B)ACK (Q)uit"
+	DS "(9)500 (B)ack (Q)uit"
 	DB 0
 BCHOICE0: DS "/BW6"
 	DB 10, 0
@@ -394,8 +462,10 @@ BCHOICE3: DS "/BW9"
 	DB 10, 0
 
 SFMENU:	"Enter Spreading Factor:"
-  DB 13,10
-	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
+	DB 0
+SFMENU0:	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
+	DB 13,10
+	DS "(B)ack (Q)uit"
 	DB 0
 SFCHOICE6: DS "/SF6"
 	DB 10, 0
@@ -411,6 +481,16 @@ SFCHOICE11: DS "/SF11"
 	DB 10, 0
 SFCHOICE12: DS "/SF12"
 	DB 10, 0
+
+MSTATUS: DS "/ST"
+	DB 0
+
+NUMCHARS: DS "Chars in COM buffer: "
+	DB 0
+
+POSX:	DB 0,0
+MYBUFFER: DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 APMENU:	"Auto PING:"
   DB 13,10

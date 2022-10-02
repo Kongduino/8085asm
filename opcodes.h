@@ -277,7 +277,7 @@ static Opcode opcode[] = {
   {0x18, "RDEL", 0, " ", " ", 0, "RDEL", "", ""}, // rotate DE left thru carry: ;E[0]=c, c=D[7]
   {0x28, "LDHI", 0, " ", " ", 1, "LDHI", "", ""}, // DE=HL+following (unsigned) byte
   {0x38, "LDSI", 0, " ", " ", 1, "LDSI", "", ""}, // DE=SP+following (unsigned) byte
-  {0xCB, "RSTV", 0, " ", " ", 0, "RSTV", "", ""}, // call 40h if overflow flag set
+  {0xCB, "RSTV", 0, " ", " ", 0, "RSTV", "", ""}, // call 40h if overflow flag set. useless
   {0xD9, "SHLX", 0, " ", " ", 0, "SHLX", "", ""}, // (DE)=HL
   {0xED, "LHLX", 0, " ", " ", 0, "LHLX", "", ""}, // HL=(DE)
   {0xDD, "JNUI", 0, " ", " ", 2, "JP NU,", "", ""}, // jump <address> if flag bit 5 (underflow) clear. See below
