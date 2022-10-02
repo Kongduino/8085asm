@@ -43,9 +43,11 @@ LOOP01:	PUSH PSW
 LOOP03:	PUSH PSW
 	PUSH H
 	MOV A,M
+	CPI 126
+	JP LOOP05 ; non-printable char?
 	CPI 31
 	JP LOOP04 ; printable char?
-	MVI A,0x2E ; or display '.'
+LOOP05:	MVI A,0x2E ; or display '.'
 LOOP04: CALL LCD
 	POP H
 	INX H
