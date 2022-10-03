@@ -1,7 +1,6 @@
-	ORG 0xf024
+	ORG 0xeeb5
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
-	; CALL HOME
 	MVI A,10
 	MVI B,1
 	CALL CURSOR ; cursor 10,1
@@ -22,21 +21,21 @@ LOOP01:	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JMP LOOP ; we should handle the line. For now just loop back
 
 CURSOR:	; a = x. b = y
-	PUSH H ; preserve HL
+	PUSH H ; preserves HL
 	LXI H, CSRX
 	MOV M, A
 	LXI H, CSRY
 	MOV M, B ; cursor X, Y
-	POP H ; retrieve HL
+	POP H ; retrieves HL
 	RET
 
-HDLKBD:	CPI 81 ; Q
+HDLKBD:	CPI 0x51 ; Q
 	JZ THEEND
-	CPI 113 ; q
+	CPI 0x71 ; q
 	JZ THEEND
-	CPI 80 ; P
+	CPI 0x50 ; P
 	JZ  PING
-	CPI 112 ; P
+	CPI 0x70 ; P
 	JZ  PING
 	CPI 0x46 ; F
 	JZ  DOFREQ
@@ -52,9 +51,27 @@ HDLKBD:	CPI 81 ; Q
 	JZ  DOSF
 	CPI 0x54 ; T
 	JZ  DOSTATUS
-	CPI 0x74 ; T
+	CPI 0x74 ; t
 	JZ  DOSTATUS
+	CPI 0x41 ; A
+	JZ DOAP
+	CPI 0x61 ; a
+	JZ DOAP
+	CPI 0x4d ; M
+	JZ SENDLINE
+	CPI 0x6d ; m
+	JZ SENDLINE
+	PUSH PSW
 	CALL MYBEEP
+	MVI A,1
+	MVI B,6
+	CALL CURSOR
+	CALL ERAEOL
+	POP PSW
+	LXI H,DUNNO
+	MOV M,A
+	DCX H ; DUNNO0
+	CALL DISPLAY
 	JMP LOOP01
 
 PING:	MVI A,1
@@ -88,12 +105,19 @@ SENDLINE:	MVI A,1
 	MVI B,6
 	CALL CURSOR ; cursor 1,6
 	CALL ERAEOL
+	MVI A,1
+	MVI B,5
+	CALL CURSOR ; cursor 1,5
 	LXI H, ASKLINE
 	CALL DISPLAY
 	MVI A,1
+	MVI B,6
+	CALL CURSOR ; cursor 1,6
+	CALL INLIN ; Gets line from kbd, ended by RETURN. Stored at 0xF685.
+	MVI A,1
 	MVI B,7
 	CALL CURSOR ; cursor 1,7
-	CALL INLIN ; Gets line from kbd, ended by RETURN. Stored at 0xF685.
+	CALL ERAEOL
 	LXI H,0xF685
 	MOV A,M
 	CPI 0 ; if line is empty, go back to the menu
@@ -118,17 +142,19 @@ DOSTATUS:	MVI A,1
 	JMP LOOP
 
 DOFREQ:	CALL CLS
-	CALL HOME
-	LXI H, FQMENU0
-	CALL DISPLAY
 	MVI A,1
 	MVI B,2
 	CALL CURSOR ; cursor 1,2
-	LXI H, FQMENU1
+	LXI H, FQMENU0
 	CALL DISPLAY
 	MVI A,1
 	MVI B,3
-	CALL CURSOR ; cursor 1,2
+	CALL CURSOR ; cursor 1,3
+	LXI H, FQMENU1
+	CALL DISPLAY
+	MVI A,1
+	MVI B,4
+	CALL CURSOR ; cursor 1,4
 	LXI H, FQMENU2
 	CALL DISPLAY
 DOFREQH:	CALL HDLCOM ; check COM for incoming text
@@ -172,10 +198,21 @@ DOFREQX:	CALL SNDSRL
 	JMP DOFREQH
 
 DOBW:	CALL CLS
-	CALL HOME
-	LXI H, BWMENU
+	MVI A,1
+	MVI B,2
+	CALL CURSOR ; cursor 1,2
+	LXI H, BWMENU0
 	CALL DISPLAY
-	CALL HOME
+	MVI A,1
+	MVI B,3
+	CALL CURSOR ; cursor 1,3
+	LXI H, BWMENU1
+	CALL DISPLAY
+	MVI A,1
+	MVI B,4
+	CALL CURSOR ; cursor 1,4
+	LXI H, BWMENU2
+	CALL DISPLAY
 DOBWH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JZ DOBWH
@@ -209,13 +246,20 @@ DOBWX:	CALL SNDSRL
 	JMP DOBWH
 
 DOSF:	CALL CLS
-	CALL HOME
-	LXI H, SFMENU
-	CALL DISPLAY
 	MVI A,1
 	MVI B,2
 	CALL CURSOR ; cursor 1,2
 	LXI H, SFMENU0
+	CALL DISPLAY
+	MVI A,1
+	MVI B,3
+	CALL CURSOR ; cursor 1,3
+	LXI H, SFMENU1
+	CALL DISPLAY
+	MVI A,1
+	MVI B,4
+	CALL CURSOR ; cursor 1,4
+	LXI H, SFMENU2
 	CALL DISPLAY
 DOSFH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
@@ -262,12 +306,21 @@ DOSFX:	CALL SNDSRL
 	JMP DOSFH
 
 DOAP:	CALL CLS
-	MVI A,29
-	MVI B,1
-	CALL CURSOR ; cursor 29,1
-	LXI H, APMENU
+	MVI A,1
+	MVI B,2
+	CALL CURSOR ; cursor 1,2
+	LXI H, APMENU0
 	CALL DISPLAY
-	CALL HOME
+	MVI A,1
+	MVI B,3
+	CALL CURSOR ; cursor 1,3
+	LXI H, APMENU1
+	CALL DISPLAY
+	MVI A,1
+	MVI B,4
+	CALL CURSOR ; cursor 1,4
+	LXI H, APMENU2
+	CALL DISPLAY
 DOAPH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JZ DOAPH
@@ -341,6 +394,8 @@ INITSRL:	CALL CLSCOM
 	CALL LCD ; XON/XOFF
 	LXI H,SRLGREET
 	CALL SNDSRL
+	LXI H,VHM0
+	CALL SNDSRL
 	RET
 
 SNDSRL:	PUSH H
@@ -354,13 +409,16 @@ SNDSRL:	PUSH H
 	CALL DISPLAY
 	POP H
 SNDSRL0:	MOV A,M
-	CPI 0
-	RZ
+	CPI 0 ; done?
+	JZ SNDSRL1
 	CALL SD232C
 	MOV A,M
 	CALL LCD ; output the string also to LCD
 	INX H
 	JMP SNDSRL0
+SNDSRL1:	MVI A, 10 ; Send LF
+	CALL SD232C
+	RET ; and return
 
 SRLLINE:	IN 0xC8 ; before you use the UART, it is good practice to clear the UART receiver buffer
 	; register with an input from port C8. This is done, for example, at 6CE5.
@@ -430,23 +488,35 @@ HDLCOM0:	POP PSW
 	INX H
 	SHLX ; (DE) = HL
 	JMP HDLCOM0
-HDLCOM1:	LXI H,POSX ; reset POSX
+HDLCOM1:	MVI A,1
+	MVI B,5
+	CALL CURSOR
+	CALL ERAEOL
 	MVI A,1
-	MOV M,A
-	LXI H,POSY ; reset POSY
-	MVI A,6
-	MOV M,A
-	LXI D, CSRY
-	LXI H,0x0106
-	SHLX ; (DE) = HL
-	; cursor x 1 y 6 HOPEFULLY
+	MVI B,6
+	CALL CURSOR
 	CALL ERAEOL
-	LXI D, CSRY
-	LXI H,0x0107
-	SHLX ; (DE) = HL
-	; cursor x 1 y 7 HOPEFULLY
-	CALL ERAEOL
-	LXI H,MYBUFFER
+	MVI A,1
+	MVI B,7
+	CALL CURSOR
+	CALL ERAEOL ; Cursor is set for now at 1,7 for "info msg"
+	LXI H,MYBUFFER ; if first 2 chars are 'ID' display on line 6 & 7
+	MOV A,M
+	CPI 0x49
+	JNZ HDLCOM3
+	INX H
+	MOV A,M
+	CPI 0x44
+	JNZ HDLCOM3
+	MVI A,1
+	MVI B,5
+	CALL CURSOR
+	LXI H,INCOMING
+	CALL DISPLAY
+	MVI A,1
+	MVI B,6
+	CALL CURSOR ; Incoming message:
+HDLCOM3:	LXI H,MYBUFFER
 	CALL DISPLAY
 	LXI D, POSX
 	LXI H,0
@@ -461,73 +531,75 @@ HDLCOM2: POP PSW
 
 VGREET:	DS "LORA MESSENGER"
 	DB 13,10
-	DS "(P)ING (F)REQUENCY (B)W (S)F"
+	DS "(P)ING (F)requency (B)W (S)F"
 	DB 13,10
-	DS "S(T)ATUS (A)uto PING (Q)uit"
+	DS "S(T)atus (A)uto PING (M)essage (Q)uit"
 	DB 0
-VKEY:	DS "ENTER KEY:"
+VKEY:	DS "Select Menu: "
 	DB 0
 NPING: DS "/p"
-	DB 10,0
+	DB 0
 SRLGREET:	DS "/DNT102"
-	DB 10,0
+	DB 0
+VHM0:	DS "/HM0"
+	DB 0
 VSENDING:	DS "Sending: "
 	DB 0
 
 FQMENU0:	"Enter freq:"
 	DB 0
-FQMENU1:	DS "(0)868 (1)868.125 (2)868.250"
+FQMENU1:	DS "(0)868 (1)868.125 (2)868.250 (Q)uit"
 	DB 0
 FQMENU2:	DS "(3)915 (4)915.125 (5)915.250 (B)ack"
 	DB 0
 FCHOICE0: DS "/FQ868"
-	DB 10, 0
+	DB 0
 FCHOICE1: DS "/FQ868.125"
-	DB 10, 0
+	DB 0
 FCHOICE2: DS "/FQ868.25"
-	DB 10, 0
+	DB 0
 FCHOICE3: DS "/FQ915"
-	DB 10, 0
+	DB 0
 FCHOICE4: DS "/FQ915.125"
-	DB 10, 0
+	DB 0
 FCHOICE5: DS "/FQ915.25"
-	DB 10, 0
+	DB 0
 
-BWMENU:	"Enter bandwidth:"
-	DB 13,10
-	DS "(6)62.5 KHz (7)125 KHz (8)250 KHz"
-	DB 13,10
-	DS "(9)500 (B)ack (Q)uit"
+BWMENU0:	"Enter bandwidth:"
+	DB 0
+BWMENU1:	DS "(6)62.5 KHz (7)125 KHz (8)250 KHz"
+	DB 0
+BWMENU2:	DS "(9)500 (B)ack (Q)uit"
 	DB 0
 BCHOICE0: DS "/BW6"
-	DB 10, 0
-BCHOICE1: DS "/BW7"
-	DB 10, 0
-BCHOICE2: DS "/BW8"
-	DB 10, 0
-BCHOICE3: DS "/BW9"
-	DB 10, 0
-
-SFMENU:	"Enter Spreading Factor:"
 	DB 0
-SFMENU0:	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
-	DB 13,10
-	DS "(B)ack (Q)uit"
+BCHOICE1: DS "/BW7"
+	DB 0
+BCHOICE2: DS "/BW8"
+	DB 0
+BCHOICE3: DS "/BW9"
+	DB 0
+
+SFMENU0:	"Enter Spreading Factor:"
+	DB 0
+SFMENU1:	DS "(6) (7) (8) (9) 1(0) 1(1) 1(2)"
+	DB 0
+SFMENU2:	DS "(B)ack (Q)uit"
 	DB 0
 SFCHOICE6: DS "/SF6"
-	DB 10, 0
+	DB 0
 SFCHOICE7: DS "/SF7"
-	DB 10, 0
+	DB 0
 SFCHOICE8: DS "/SF8"
-	DB 10, 0
+	DB 0
 SFCHOICE9: DS "/SF9"
-	DB 10, 0
+	DB 0
 SFCHOICE10: DS "/SF10"
-	DB 10, 0
+	DB 0
 SFCHOICE11: DS "/SF11"
-	DB 10, 0
+	DB 0
 SFCHOICE12: DS "/SF12"
-	DB 10, 0
+	DB 0
 
 MSTATUS: DS "/ST"
 	DB 0
@@ -535,21 +607,34 @@ MSTATUS: DS "/ST"
 NUMCHARS: DS "Chars in COM buffer: "
 	DB 0
 
-APMENU:	"Auto PING:"
-  DB 13,10
-	DS "(O)ff (1) mn (2) mn (5) mn 1(0) mn"
+APMENU0:	"Auto PING:"
+	DB 0
+APMENU1:	DS "(O)ff (1) mn (2) mn (5) mn 1(0) mn"
+	DB 0
+APMENU2:	DS "(B)ack (Q)uit"
 	DB 0
 APCHOICEO: DS "/AP0"
-	DB 10, 0
+	DB 0
 APCHOICE1: DS "/AP1"
-	DB 10, 0
+	DB 0
 APCHOICE2: DS "/AP2"
-	DB 10, 0
+	DB 0
 APCHOICE5: DS "/AP5"
-	DB 10, 0
+	DB 0
 APCHOICE10: DS "/AP10"
-	DB 10, 0
+	DB 0
 
+ASKLINE: DS "Enter text to send: "
+	DB 0
+
+INCOMING: DS "Incoming message:"
+	DB 0
+
+DUNNO0:	DS "`"
+DUNNO: DB 0
+	DS "` is not a valid choice."
+	DB 0
 POSX:	DB 0,0
-MYBUFFER: DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+MYBUFFER:	DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+			DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+			DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
