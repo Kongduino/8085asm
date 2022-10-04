@@ -1,8 +1,8 @@
 /* ########################################################################
    8085asm - Simple 8085 assembler and disassembler
    ########################################################################
-   Copyright (c):  2009 Luis Claudio Gamboa Lopes
-                  2022 Kongduino for this version
+   Copyright (c):	2009 Luis Claudio Gamboa Lopes
+                  	2022 Kongduino for this version
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -62,8 +62,15 @@ char fname2[256];
 char fname3[256];
 char fname4[256];
 
-int parseNumber(char *arg) {
+int parseNumber(char *arg, char *line) {
   int n0 = 0, n1 = 0, n2 = 0, myValue = 0;
+  if (arg[0] == '\'') {
+    // ':'
+    int n = sscanf(line, "%*s '%c", &myValue);
+    // printf("n = %d, myValue = %d\n", n, myValue);
+    if (n == 1) return myValue;
+    printf("sscanf failed.\n");
+  }
   if (arg[0] == '0' && (arg[1] == 'x' || arg[1] == 'X'))
     n0 = 1;
   if (arg[strlen(arg) - 1] == 'h' || arg[strlen(arg) - 1] == 'H')
@@ -120,7 +127,7 @@ int parsearg(char* arg, char * line) {
   }
   // sscanf(arg, "%X", &i);
   // return i;
-  return parseNumber(arg);
+  return parseNumber(arg, line);
 };
 
 int parse(char * line) {
