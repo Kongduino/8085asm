@@ -1,4 +1,4 @@
-	ORG 0xEE05
+	ORG 0xEE0A
 BEGIN:	CALL INITSRL
 LOOP00:	CALL CLS ; when a refresh of the menu is needed
 	CALL SETSYS ; Sets system line (locks line 8).
@@ -54,37 +54,38 @@ CURSOR:	; a = x. b = y
 	POP H ; retrieves HL
 	RET
 
-HDLKBD:	CPI 0x51 ; Q
+HDLKBD:	
+	CPI 'Q ; 0x51
 	JZ THEEND
-	CPI 0x71 ; q
+	CPI 'q ; 0x71
 	JZ THEEND
-	CPI 0x50 ; P
+	CPI 'P ; 0x50
 	JZ  PING
-	CPI 0x70 ; P
+	CPI 'p ; 0x70
 	JZ  PING
-	CPI 0x46 ; F
+	CPI 'F ; 0x46
 	JZ  DOFREQ
-	CPI 0x66 ; f
+	CPI 'f ; 0x66
 	JZ  DOFREQ
-	CPI 0x42 ; B
+	CPI 'B ; 0x42
 	JZ  DOBW
-	CPI 0x62 ; b
+	CPI 'b ; 0x62
 	JZ  DOBW
-	CPI 0x53 ; S
+	CPI 'S ; 0x53
 	JZ  DOSF
-	CPI 0x73 ; s
+	CPI 's ; 0x73
 	JZ  DOSF
-	CPI 0x54 ; T
+	CPI 'T ; 0x54
 	JZ  DOSTATUS
-	CPI 0x74 ; t
+	CPI 't ; 0x74
 	JZ  DOSTATUS
-	CPI 0x41 ; A
+	CPI 'A ; 0x41
 	JZ DOAP
-	CPI 0x61 ; a
+	CPI 'a ; 0x61
 	JZ DOAP
-	CPI 0x4d ; M
+	CPI 'M ; 0x4d
 	JZ SENDLINE
-	CPI 0x6d ; m
+	CPI 'm ; 0x6d
 	JZ SENDLINE
 	PUSH PSW
 	CALL MYBEEP
@@ -185,25 +186,25 @@ DOFREQH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JC FREQ01
 	JZ DOFREQH
-	CPI 0x42 ; B(ack)
+	CPI 'B ; 0x42(ack)
 	JZ LOOP00
-	CPI 0x42 ; b(ack)
+	CPI 'b ; 0x62(ack)
 	JZ LOOP00
-	CPI 0x51 ; q(uit)
+	CPI 'Q ; 0x51(uit)
 	JZ THEEND
-	CPI 0x71 ; q(uit)
+	CPI 'q ; 0x71(uit)
 	JZ THEEND
-	CPI 0x30 ; 0
+	CPI '0 ; 0x30
 	JZ DOFREQ0
-	CPI 0x31 ; 1
+	CPI '1 ; 0x31
 	JZ DOFREQ1
-	CPI 0x32 ; 2
+	CPI '2 ; 0x32
 	JZ DOFREQ2
-	CPI 0x33 ; 3
+	CPI '3 ; 0x33
 	JZ DOFREQ3
-	CPI 0x34 ; 4
+	CPI '4 ; 0x34
 	JZ DOFREQ4
-	CPI 0x35 ; 5
+	CPI '5 ; 0x35
 	JZ DOFREQ5
 	CALL MYBEEP
 	JMP DOFREQH
@@ -255,21 +256,21 @@ DOBWH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JC DOBWH1
 	JZ DOBWH
-	CPI 0x42 ; B(ack)
+	CPI 'B ; (0x42)
 	JZ LOOP00
-	CPI 0x62 ; b(ack)
+	CPI 'b ; (0x62)
 	JZ LOOP00
-	CPI 0x51 ; q(uit)
+	CPI 'q ; (0x51)
 	JZ THEEND
-	CPI 0x71 ; q(uit)
+	CPI 'q ; (0x71)
 	JZ THEEND
-	CPI 0x36 ; 6
+	CPI '6 ; (0x36)
 	JZ DOBW0
-	CPI 0x37 ; 7
+	CPI '7 ; (0x37)
 	JZ DOBW1
-	CPI 0x38 ; 8
+	CPI '8 ; (0x38)
 	JZ DOBW2
-	CPI 0x39 ; 9
+	CPI '9 ; (0x39)
 	JZ DOBW3
 	CALL MYBEEP
 	JMP DOBWH
@@ -313,27 +314,25 @@ DOSFH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JC DOSFH1
 	JZ DOSFH ; No key? Loop back
-	CPI 0x42 ; B(ack)
+	CPI 'B ; (0x42)
 	JZ LOOP00
-	CPI 0x62 ; b(ack)
+	CPI 'b ; (0x62)
 	JZ LOOP00
-	CPI 0x51 ; q(uit)
+	CPI 'q ; (0x51)
 	JZ THEEND
-	CPI 0x71 ; q(uit)
+	CPI 'q ; (0x71)
 	JZ THEEND
-	CPI 0x36 ; 6
-	JZ DOSF6
-	CPI 0x37 ; 7
+	CPI '7 ; (0x37)
 	JZ DOSF7
-	CPI 0x38 ; 8
+	CPI '8 ; (0x38)
 	JZ DOSF8
-	CPI 0x39 ; 9
+	CPI '9 ; (0x39)
 	JZ DOSF9
-	CPI 0x30 ; 0
+	CPI '0 ; (0x30)
 	JZ DOSF10
-	CPI 0x39 ; 1
+	CPI '1 ; (0x39)
 	JZ DOSF11
-	CPI 0x32 ; 2
+	CPI '2 ; (0x32)
 	JZ DOSF12
 	CALL MYBEEP
 	JMP DOSFH
@@ -385,25 +384,25 @@ DOAPH:	CALL HDLCOM ; check COM for incoming text
 	CALL KYREAD ; Scans kbd for a key, returns in A, if any.
 	JC DOAPH1
 	JZ DOAPH
-	CPI 0x42 ; B(ack)
+	CPI 'B ; (0x42)
 	JZ LOOP00
-	CPI 0x62 ; b(ack)
+	CPI 'b ; (0x62)
 	JZ LOOP00
-	CPI 0x51 ; q(uit)
+	CPI 'q ; (0x51)
 	JZ THEEND
-	CPI 0x71 ; q(uit)
+	CPI 'q ; (0x71)
 	JZ THEEND
-	CPI 0x30 ; 0
+	CPI '0 ; (0x30)
 	JZ DOAP10
-	CPI 0x39 ; 1
+	CPI '1 ; (0x39)
 	JZ DOAP1
-	CPI 0x32 ; 2
+	CPI '2 ; (0x32)
 	JZ DOAP2
-	CPI 0x35 ; 5
+	CPI '5 ; (0x35)
 	JZ DOAP5
-	CPI 0x4f ; O
+	CPI 'O ; (0x4f)
 	JZ DOAPO
-	CPI 0x6f ; O
+	CPI 'O ; (0x6f)
 	JZ DOAPO
 	CALL MYBEEP
 	JMP DOAPH
@@ -571,11 +570,11 @@ HDLCOM1:	MVI A,1
 	CALL ERAEOL ; Cursor is set for now at 1,7 for "info msg"
 	LXI H,MYBUFFER ; if first 2 chars are 'ID' display on line 6 & 7
 	MOV A,M
-	CPI 0x49
+	CPI 'I ; (0x49)
 	JNZ HDLCOM3
 	INX H
 	MOV A,M
-	CPI 0x44
+	CPI 'D ; '(0x44)
 	JNZ HDLCOM3
 	MVI A,1
 	MVI B,5

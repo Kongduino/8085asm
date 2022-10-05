@@ -105,7 +105,7 @@ int parseNumber(char *arg, char *line) {
   myValue = 0;
   for (z = 0; z < y; z++) {
     if (arg[z] < '0' || arg[z] > '9') {
-      // printf("Bad format!");
+      printf("Bad format! %s\n", line);
       return -1;
     }
     myValue = (myValue * 10) + (arg[z] - '0');
