@@ -61,6 +61,7 @@ char fname1[256];
 char fname2[256];
 char fname3[256];
 char fname4[256];
+char relocate = 'Y';
 
 int parseNumber(char *arg, char *line) {
   int n0 = 0, n1 = 0, n2 = 0, myValue = 0;
@@ -298,23 +299,36 @@ int parse(char * line) {
 }
 
 int main(int argc, char** argv) {
+  printf("################################\n");
+  printf("# LCGamboa 8085 assembler 2008 #\n");
+  printf("################################\n");
   char line[256];
-  if (argc == 2) {
-    strcpy(fname, argv[1]);
+  size_t optind = 1;
+  while (optind < argc && argv[optind][0] == '-') {
+    // printf("arg: %s\n", argv[optind]);
+    switch (argv[optind][1]) {
+      case 'X':
+        // Do not relocate
+        relocate = 'N';
+        optind += 1;
+        printf(" * Do not relocate. OK.\n");
+    }
+  }
+  if (optind < argc) {
+    strcpy(fname, argv[optind]);
   } else {
     printf("enter the file name: ");
     scanf("%s", fname);
     getchar();
   }
-  printf("Opening file: %s\n", fname);
+  printf(" * Opening file: %s\n", fname);
   fin = fopen(fname, "r");
   if (!fin) {
-    printf("Error opening file: %s\n", fname);
+    printf(" ! Error opening file: %s\n", fname);
     return -1;
   }
   strcpy(fname0, fname);
   fnamep = strtok(fname, ".");
-  printf("LCGamboa 8085 assembler 2008\n\n");
   strcpy(fname1, fnamep);
   strcat(fname1, ".copy.asm");
   strcpy(fname2, fnamep);
@@ -323,7 +337,7 @@ int main(int argc, char** argv) {
   strcat(fname3, ".co");
   strcpy(fname4, fnamep);
   strcat(fname4, ".do");
-  printf("* Saving %s:\n", fname2);
+  printf(" * Saving %s:\n", fname2);
   fout = fopen(fname2, "w");
   if (!fout) {
     printf("Error opening file: %s\n", fname2);
@@ -425,6 +439,10 @@ int main(int argc, char** argv) {
   memc = 0;
   unsigned short TOP = doCompile();
   printf("TOP is 0x%04x. ORG is 0x%04x\n", TOP, mem[0].addr);
+  if (relocate == 'N') {
+    printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
+    return 1;
+  }
   if(TOP == mem[0].addr) {
     printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
     return 1;
@@ -476,7 +494,7 @@ int main(int argc, char** argv) {
       } else {
         fprintf(fout1, "%s", line);
         // printf("%s", line);
-      }
+      } 
     }
   }
   fclose(fout1);
@@ -484,10 +502,10 @@ int main(int argc, char** argv) {
   printf("Done...\n");
   fin = fopen(fname1, "r");
   if (!fin) {
-    printf("Error opening file: %s\n", fname1);
+    printf(" ! Error opening file: %s\n", fname1);
     return -1;
   }
-  printf("Compiling again...\n");
+  printf(" * Compiling again...\n");
   memc = 0;
   TOP = doCompile();
   return 1;
@@ -544,10 +562,10 @@ unsigned short doCompile() {
   printf("   Saving SYMBOLIC TABLE.\n");
   for (i = 0; i < labelsc; i++) fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
   fprintf(fout, "\n\nMEM  (%i bytes):\n\n", memc);
-  printf("* RAM occupied:  (%i bytes):\n", memc);
+  printf(" * RAM occupied:  (%i bytes):\n", memc);
   strcpy(fname2, fnamep);
   strcat(fname2, ".hex");
-  printf("* Saving %s, %s and %s:\n", fname2, fname3, fname4);
+  printf(" * Saving %s, %s and %s:\n", fname2, fname3, fname4);
   fout2 = fopen(fname2, "w");
   if (!fout2) {
     printf("Error opening file: %s\n", fname2);
@@ -606,11 +624,11 @@ unsigned short doCompile() {
   fseek(fin, 0L, SEEK_END);
   int sz = ftell(fin);
   fclose(fin);
-  printf("File size: %d. ", sz);
+  printf(" * File size: %d. ", sz);
   if (sz == memc) printf("This matches memc. Goodie.\n");
   else printf("This differs from memc (%d). No goodsky.\n", memc);
   unsigned int HIMEM = 62960 - sz - 1;
-  printf("CLEAR 256,%d\n", HIMEM);
+  printf("    CLEAR 256,%d\n", HIMEM);
 
   fclose(fout4);
   printf("%s\n\n\n", "All done!");
