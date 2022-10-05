@@ -300,7 +300,7 @@ int parse(char * line) {
 
 int main(int argc, char** argv) {
   printf("################################\n");
-  printf("# LCGamboa 8085 assembler 2008 #\n");
+  printf("# LCGamboa 8085 assembler 2022 #\n");
   printf("################################\n");
   char line[256];
   size_t optind = 1;
