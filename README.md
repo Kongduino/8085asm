@@ -224,3 +224,9 @@ File size: 1073. This matches memc. Goodie.
 CLEAR 256,61886
 All done!
 ```
+
+**2022/10/07**
+
+The compiler tries to recognize single characters preceded by a quote as a numerical value. ie `CPI 'A` is equivalent to `CPI 0x41`. It *seems* to work alright, except when there's a label preceding the command. I need to work on that.
+
+A new command-line option, `-X`, has been added: it is to prevent the compiler to recalculate the ORG address and recompile. This can be useful when you want to have two pieces of code in RAM at the same time. Two other options, on my TODO list [ie yet to be implemented], are (a) to provide instead a specific address at which to relocate the code, and (b) to provide a custom `HIMEM` value, ie ask the compiler to calculate the relocation address not based on the usual `62960`, but on the value passed on the command line: ie *please relocate this code just above the new HIMEM, xxxxx*.
