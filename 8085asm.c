@@ -318,6 +318,7 @@ int main(int argc, char** argv) {
         relocate = 'N';
         optind += 1;
         printf(" * Do not relocate. OK.\n");
+        break;
       case 'L':
         // Relocate to alternate LCD buffer,
         // BEGLCD 0xFE00 to ENDLCD EQU 0XFF40, 320 bytes
@@ -325,6 +326,7 @@ int main(int argc, char** argv) {
         relocate = 'L';
         optind += 1;
         printf(" * Relocate to LCD buffer, 0xFE00-0xFF40.\n");
+        break;
     }
   }
   if (optind < argc) {
@@ -746,10 +748,6 @@ int main(int argc, char** argv) {
     printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
     return 1;
   }
-  if(TOP == mem[0].addr && relocate != 'L') {
-    printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
-    return 1;
-  }
   if(relocate == 'L') {
     if(memc > 320) {
       unsigned int over = memc-320;
@@ -757,6 +755,10 @@ int main(int argc, char** argv) {
       return 1;
     }
     TOP = 0xFE00; // BEGLCD
+  }
+  if(TOP == mem[0].addr) {
+    printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
+    return 1;
   }
   strcpy(fname1, fnamep);
   char tmp[12] = {0};
