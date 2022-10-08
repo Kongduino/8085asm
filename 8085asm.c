@@ -29,6 +29,7 @@
 
 int lc = 1;
 unsigned short doCompile();
+#define BEGLCD 0xf8a0
 
 void ucase (char * str) {
   int i;
@@ -236,7 +237,7 @@ int parse(char * line) {
   //busca pseudo
   if (strcmp("ORG", men) == 0) {
     addr = parsearg(arg1, line);
-    printf("org ===> 0x%04X\n", addr);
+    // printf("org ===> 0x%04X\n", addr);
     return 0;
   };
   if ((label != NULL) && (pass == 1)) {
@@ -346,8 +347,9 @@ int main(int argc, char** argv) {
   strcat(fname4, ".do");
   printf(" • Creating internal labels... ");
   strcpy(labels[labelsc].nome, "BAUDST"); labels[labelsc++].value = 0x6E75;
-  strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xFE00;
-  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xFF40;
+  strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xf8a0;
+  // https://ftp.whtech.com/club100/pg/pg200/rammap.do
+  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xfa2f;
   strcpy(labels[labelsc].nome, "BRKCHK"); labels[labelsc++].value = 0x7283;
   strcpy(labels[labelsc].nome, "CARDET"); labels[labelsc++].value = 0x6EEF;
   strcpy(labels[labelsc].nome, "CASIN"); labels[labelsc++].value = 0x14B0;
@@ -741,18 +743,19 @@ int main(int argc, char** argv) {
   }
   unsigned short TOP = doCompile();
   labelsc = origLabelsc; // restore pointer to the last internal label + 1
-  printf("TOP is 0x%04x. ORG is 0x%04x\n", TOP, mem[0].addr);
-  if (relocate == 'N') {
-    printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
-    return 1;
-  }
-  if(mem[0].addr == 0xFE00) {
+  if(mem[0].addr == BEGLCD) {
     if(memc > 320) {
       unsigned int over = memc-320;
       printf(" /!\\ You are compiling into the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
       return 1;
     }
-    TOP = mem[0].addr;
+    printf("You are compiling into the LCD alternate buffer, and the code is %d bytes. All done...\n", memc);
+    return 0;
+  }
+  printf("TOP is 0x%04x. ORG is 0x%04x\n", TOP, mem[0].addr);
+  if (relocate == 'N') {
+    printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
+    return 1;
   }
   if(TOP == mem[0].addr) {
     printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
