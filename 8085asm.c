@@ -312,6 +312,13 @@ int main(int argc, char** argv) {
         relocate = 'N';
         optind += 1;
         printf(" * Do not relocate. OK.\n");
+      case 'L':
+        // Relocate to alternate LCD buffer,
+        // BEGLCD 0XFE00 to ENDLCD EQU 0XFF40, 320 bytes
+        // Only if the code fits of course...
+        relocate = 'L';
+        optind += 1;
+        printf(" * Relocate to LCD buffer. OK.\n");
     }
   }
   if (optind < argc) {
@@ -346,6 +353,7 @@ int main(int argc, char** argv) {
   fprintf(fout, "8085 Simple Assembler 2022\n\n");
   strcpy(labels[labelsc].nome, "BAUDST"); labels[labelsc++].value = 0x6E75;
   strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xFE00;
+  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xFF40;
   strcpy(labels[labelsc].nome, "BRKCHK"); labels[labelsc++].value = 0x7283;
   strcpy(labels[labelsc].nome, "CARDET"); labels[labelsc++].value = 0x6EEF;
   strcpy(labels[labelsc].nome, "CASIN"); labels[labelsc++].value = 0x14B0;
@@ -374,7 +382,6 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "DISC"); labels[labelsc++].value = 0x52BB;
   strcpy(labels[labelsc].nome, "DISPLAY"); labels[labelsc++].value = 0x5A58;
   strcpy(labels[labelsc].nome, "DSPFNK"); labels[labelsc++].value = 0x42A5;
-  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xFF40;
   strcpy(labels[labelsc].nome, "ENTREV"); labels[labelsc++].value = 0x4269;
   strcpy(labels[labelsc].nome, "ERAEOL"); labels[labelsc++].value = 0x425D;
   strcpy(labels[labelsc].nome, "ERAFNK"); labels[labelsc++].value = 0x428A;
@@ -402,7 +409,7 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "MUSIC"); labels[labelsc++].value = 0x72C5;
   strcpy(labels[labelsc].nome, "PLOT"); labels[labelsc++].value = 0x744D;
   strcpy(labels[labelsc].nome, "PNOTAB"); labels[labelsc++].value = 0x1470;
-  strcpy(labels[labelsc].nome, "POSIT"); labels[labelsc++].value = 0x4D7C;
+  // strcpy(labels[labelsc].nome, "POSIT"); labels[labelsc++].value = 0x4D7C; Seems to be wrong See below
   strcpy(labels[labelsc].nome, "PRINTR"); labels[labelsc++].value = 0x6D3F;
   strcpy(labels[labelsc].nome, "PRTLCD"); labels[labelsc++].value = 0x1E5E;
   strcpy(labels[labelsc].nome, "PRTTAB"); labels[labelsc++].value = 0x4B55;
@@ -430,10 +437,298 @@ int main(int argc, char** argv) {
   strcpy(labels[labelsc].nome, "BEEP"); labels[labelsc++].value = 0x4229; // DEBUG413
   strcpy(labels[labelsc].nome, "GETUC"); labels[labelsc++].value = 0x0fe8; // DEBUG413
   strcpy(labels[labelsc].nome, "TOUPPER"); labels[labelsc++].value = 0x0fe9; // DEBUG413
+  strcpy(labels[labelsc].nome, "UPCAS"); labels[labelsc++].value = 0x0fe9; // m100def
   strcpy(labels[labelsc].nome, "GETLNP"); labels[labelsc++].value = 0X4644; // DEBUG413
   strcpy(labels[labelsc].nome, "GETLN"); labels[labelsc++].value = 0X463e; // DEBUG413
   strcpy(labels[labelsc].nome, "CHKCHR"); labels[labelsc++].value = 0x5d46; // DEBUG413
   strcpy(labels[labelsc].nome, "INBUF"); labels[labelsc++].value = 0xf685; // DEBUG413
+  strcpy(labels[labelsc].nome, "POSIT"); labels[labelsc++].value = 0X427C; // m100def
+  // set current cursor location
+  // Entry Conditions: H=column number (1-40), L=row number (1-8)
+  // Exit Conditions: None
+  strcpy(labels[labelsc].nome, "BARPOS"); labels[labelsc++].value = 0X59C9; // m100def
+  // the Bar Cursor is the file cursor in MENU
+  // position cursor on one of 24 bar positions
+  // Entry Conditions: HL=position 0-23
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "BARCUR"); labels[labelsc++].value = 0X59E5; // m100def
+  // toggle bar cursor to opposite state
+  // Entry Conditions: HL=position 0-23
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "DTLINE"); labels[labelsc++].value = 0X5A18; // m100def
+  // Print day/date/time as it appears on MENU screen
+  // at current cursor location
+  // updated time before printing it
+  // Entry Conditions: None
+  strcpy(labels[labelsc].nome, "TDDPT"); labels[labelsc++].value = 0X5A15; // m100def
+  // print time on top line of screen, no cls
+  // Entry Conditions: none
+  // Exit  Conditions: all registers destroyed
+  strcpy(labels[labelsc].nome, "PFRE"); labels[labelsc++].value = 0X7EAC; // m100def
+  // print number of bytes of free memory
+  // Entry Conditions: none
+  // Exit  Conditions: none
+  strcpy(labels[labelsc].nome, "ALTLCD"); labels[labelsc++].value = 0XFCC0; // m100def
+  // start of alternate screen image 320 bytes
+  strcpy(labels[labelsc].nome, "ALTLCDE"); labels[labelsc++].value = 0XFDFF; // m100def
+  // end of alternate LCD screen image
+  strcpy(labels[labelsc].nome, "KEYWTU"); labels[labelsc++].value = 0X5D64; // m100def
+  // wait for key to be pressed, convert it to uppercase
+  // Entry Conditions: None
+  // Exit  Conditions: A=uppercase key pressed
+  // function keys return preprogrammed strings
+  strcpy(labels[labelsc].nome, "BRKCHK"); labels[labelsc++].value = 0X729F; // m100def
+  // check to see if SHIFT-BREAK pressed
+  // Entry Conditions: None
+  // Exit  Conditions: Zero and Carry set on BREAK pressed
+  // 		   A destroyed
+  strcpy(labels[labelsc].nome, "SCANSP"); labels[labelsc++].value = 0X72B1; // m100def
+  // scan keyboard column of BREAK,CAPS,NUM,CODE,GRAPH,CONTROL,
+  // SHIFT key. Reset bits in A corresponding to the key pressed
+  // Entry Conditions: None
+  // Exit  Conditions: A=(BREAK,CAPS...)
+  strcpy(labels[labelsc].nome, "DSPFNK"); labels[labelsc++].value = 0X42A8; // m100def
+  // display function keys
+  // Entry Conditions: none
+  // Exit  Conditions: none
+  strcpy(labels[labelsc].nome, "CSFKEY"); labels[labelsc++].value = 0X5B46; // m100def
+  // cold start function key table address
+  // 2 bytes
+  strcpy(labels[labelsc].nome, "BASFKY"); labels[labelsc++].value = 0XF80A; // m100def
+  // BASIC's function key table
+  strcpy(labels[labelsc].nome, "BK2SK"); labels[labelsc++].value = 0X6C9C; // m100def
+  // install BASIC fucntion key table
+  // Entry Conditions: none
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "FKCTRL"); labels[labelsc++].value = 0XF650; // m100def
+  // 1 byte
+  // holds 0 or 80h
+  // if 0, F-keys return string from system table
+  // if 80, F-keys skip first 4 bytes and return what's left
+  strcpy(labels[labelsc].nome, "LBENBL"); labels[labelsc++].value = 0XFAAD; // m100def
+  // 1 byte
+  // set to FFh to enable the label line
+  strcpy(labels[labelsc].nome, "SNDCOM"); labels[labelsc++].value = 0X6E3A; // m100def
+  // send a character to RS232-C or modem (without
+  // XON/XOFF flow control)
+  // Entry conditions: C = character to be sent
+  // Exit conditions:  unknown
+  strcpy(labels[labelsc].nome, "ENDDIR"); labels[labelsc++].value = 0XFF; // m100def
+  // this value in byte 1 means no further entries
+  strcpy(labels[labelsc].nome, "FDIR"); labels[labelsc++].value = 0XF9BA; // m100def
+  // 2 bytes
+  // points to first file in directory
+  strcpy(labels[labelsc].nome, "PRSNAM"); labels[labelsc++].value = 0X4C0B; // m100def
+  // parse a filename "file.do" into FILNAM
+  // Entry Conditions: HL->file name
+  //                   E=length of file name
+  // Exit  Conditions: filename into FILNAM (fc93)
+  strcpy(labels[labelsc].nome, "FNDFIL"); labels[labelsc++].value = 0X20AF; // m100def
+  // search directory for file named at FC93h
+  // Entry Conditions: FC93h+ contains filename
+  // Exit Conditions: if Z clear the HL->directory
+  //                     Z set, no file found
+  strcpy(labels[labelsc].nome, "CHKFN"); labels[labelsc++].value = 0X5AAB; // m100def
+  // search for a full-size filename
+  // this is a workaround for the fact that chkdc can only
+  // find 4 letter names like note.do and adrs.do
+  // Entry Conditions: A=0ah
+  //                   DE=address of null-terminated
+  //                   filename
+  // Exit Conditions:  HL=address of directory entry
+  //                   Z flag=0 if file found
+  //                   Z flag=1 if file not found
+  strcpy(labels[labelsc].nome, "MKPNAM"); labels[labelsc++].value = 0X59AD; // m100def
+  // convert dir entry style filename 'FILE  DO' to
+  // 'FILE.DO'
+  // Entry Conditions: DE -> directory name
+  //                   HL -> output buffer
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "DIROK"); labels[labelsc++].value = 0X2146; // m100def
+  // sort directory
+  // Entry Conditions: none
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "NXTDIR"); labels[labelsc++].value = 0X20D5; // m100def
+  // retrieve the next directory entry of an active file
+  // Entry Conditions: HL should point to directory entry
+  //    before the starting point.  search routine begins
+  //    by pointing to the next entry
+  // Exit  Conditions: Z set = no more entries
+  //                   Z clear, HL -> dir. entry of an active file
+  strcpy(labels[labelsc].nome, "FREDIR"); labels[labelsc++].value = 0X20EC; // m100def
+  // locate an empty directory slot
+  // Entry Conditions: none
+  // Exit  Conditions: HL -> free slot
+  strcpy(labels[labelsc].nome, "POPALL"); labels[labelsc++].value = 0X14ED; // m100def
+  // pop all registers and return
+  // Entry Conditions: registers were pushed in
+  //       H,D,B,PSW order
+  // Exit Conditions: none
+  strcpy(labels[labelsc].nome, "BOOT"); labels[labelsc++].value = 0X7D33; // m100def
+  // reboot.  rst 0 jumps here
+  // Entry Conditions: none
+  // Exit  Conditions: none
+  strcpy(labels[labelsc].nome, "PWRRES"); labels[labelsc++].value = 0X143F; // m100def
+  // POWER OFF, RESUME
+  // Shuts the machine off. Program continues
+  // when its turned back on.
+  // Entry Conditions: None
+  // Exit Conditions: None
+  strcpy(labels[labelsc].nome, "BLKMV"); labels[labelsc++].value = 0X3469; // m100def
+  // move B bytes from (DE) to M with increment
+  // Entry Conditions: DE -> start of block to move
+  //                   HL -> destination block
+  //                   B = bytes to move
+  // Exit  Conditions: HL=DE=HL+B+1
+  //                   A, B destroyed
+  strcpy(labels[labelsc].nome, "LINNUM"); labels[labelsc++].value = 0X08EC; // m100def
+  // convert ASCII string to BASIC line number
+  // ascii-to-integer, except that there's a range of
+  // invalid BASIC line numbers that this won't return
+  // Entry conditions: HL -> string to convert to int
+  // Exit  Conditions: DE=integer
+  strcpy(labels[labelsc].nome, "BASEXPR"); labels[labelsc++].value = 0X1297; // m100def
+  // BASIC expression parser
+  // for simple integer-digit conversion only.
+  // Will dump you into BASIC with a ?SN ERROR on error...
+  // use carefully
+  // Entry Conditions: HL -> string to parse
+  // Exit  Conditions: DE=result of expression
+  strcpy(labels[labelsc].nome, "PRGADD"); labels[labelsc++].value = 0X344A; // m100def
+  // return starting address of file
+  // Entry Conditions: HL->dir entry
+  // Exit  Conditions: DE=address
+  strcpy(labels[labelsc].nome, "RSTDOG"); labels[labelsc++].value = 0X1BB1; // m100def
+  // reset power-off watchdog
+  // Entry Conditions: none
+  // Exit  Conditions: none
+  strcpy(labels[labelsc].nome, "TEXT"); labels[labelsc++].value = 0X5DEE; // m100def
+  // clobbers non-file ram on entry
+  strcpy(labels[labelsc].nome, "BASIC"); labels[labelsc++].value = 0X6C49; // m100def
+  // clobbers non-file ram on entry
+  strcpy(labels[labelsc].nome, "TELCOM"); labels[labelsc++].value = 0X5146; // m100def
+  // clobbers non-file ram on entry
+  strcpy(labels[labelsc].nome, "ADDRSS"); labels[labelsc++].value = 0X5B68; // m100def
+  // clobbers non-file ram on entry
+  strcpy(labels[labelsc].nome, "SCHEDL"); labels[labelsc++].value = 0X5B6F; // m100def
+  // clobbers non-file ram on entry
+  strcpy(labels[labelsc].nome, "SABASE"); labels[labelsc++].value = 0X5B74; // m100def
+  // common database code for addrss/schedl
+  // entry conditions: A=0 "Adrs" prompt
+  //                   A!=0 "Schd" prompt
+  //                   DE -> 8 byte null terminated filename
+  //                     -or-
+  //                   DE=FDD9h
+  //                   FDD9 = full size null terminated
+  //                          filename
+  strcpy(labels[labelsc].nome, "ADSCFILE"); labels[labelsc++].value = 0XFFD9; // m100def
+  // null-terminated filename buffer for addrss/schedl
+  strcpy(labels[labelsc].nome, "TXTENT"); labels[labelsc++].value = 0X5F71; // m100def
+  // entry into init of TEXT
+  strcpy(labels[labelsc].nome, "FILOFF"); labels[labelsc++].value = 0XF6E7; // m100def
+  // 2 bytes
+  // offset from the beginning of the file being edited by
+  // TEXT, so TEXT knows where to display
+
+  // ;;I/O ports
+  // I had no idea I/O ports were so screwy on the m100!
+  // 70h-7fh free
+  // 80h-8fh optional i/o controller
+  // 90h-9fh optional answering modem
+
+  // A0h-AFh bit 0: on/off for relay for signal selection
+  //                of telephone unit
+  //         bit 1: generate ENABLE signal for modem
+  // b0h-bfh 8155 PIO
+  // c0h-cfh enable data i/o on uart
+  // d0h-dfh enable config on uart
+  // e0h-efh enable signal for STROM, REMOTE
+  //         also parallel port strobe and read keyboard
+  // f0h-ffh enable signal for LCD
+  strcpy(labels[labelsc].nome, "PHONEPORT"); labels[labelsc++].value = 0XA0; // m100def
+
+  // b0=b8=command/status
+  // b1=b9=port A
+  // b2=ba=port B
+  // b3=bb=port C
+  // b4=bc=timer register low byte
+  // b5=bd=timer register high byte
+  strcpy(labels[labelsc].nome, "PIOCMD"); labels[labelsc++].value = 0XB0; // m100def
+  strcpy(labels[labelsc].nome, "PIOA"); labels[labelsc++].value = 0XB1; // m100def
+  strcpy(labels[labelsc].nome, "PIOB"); labels[labelsc++].value = 0XB2; // m100def
+  strcpy(labels[labelsc].nome, "PIOC"); labels[labelsc++].value = 0XB3; // m100def
+  strcpy(labels[labelsc].nome, "PIOTL"); labels[labelsc++].value = 0XB4; // m100def
+  strcpy(labels[labelsc].nome, "PIOTH"); labels[labelsc++].value = 0XB5; // m100def
+  strcpy(labels[labelsc].nome, "UARTDAT"); labels[labelsc++].value = 0XC0; // m100def
+  strcpy(labels[labelsc].nome, "UARTCFG"); labels[labelsc++].value = 0XD0; // m100def
+  strcpy(labels[labelsc].nome, "KEYPORT"); labels[labelsc++].value = 0XE0; // m100def
+  strcpy(labels[labelsc].nome, "LCDPORT"); labels[labelsc++].value = 0XF0; // m100def
+  strcpy(labels[labelsc].nome, "STKTOP"); labels[labelsc++].value = 0XFB9D; // m100def
+  // 2 bytes
+  // holds the beginning address of the stack
+  strcpy(labels[labelsc].nome, "PTIMER"); labels[labelsc++].value = 0XF657; // m100def
+  // 1 byte
+  // Number of 6-second intervals before the m100
+  // shuts itself off.
+  // 0=disable power-off timer
+  strcpy(labels[labelsc].nome, "POWERFLAG"); labels[labelsc++].value = 0XF932; // m100def
+  // 1 byte
+  // 0=do not shut off m100
+  strcpy(labels[labelsc].nome, "PASTEPTR"); labels[labelsc++].value = 0XF88C; // m100def
+  // 2 byte value
+  // points to paste buffer
+  // paste buffer is null-terminated
+  strcpy(labels[labelsc].nome, "SHPRTPTR"); labels[labelsc++].value = 0XF88A; // m100def
+  // 2 byte pointer
+  // points to null-teriminated string returned by
+  //    shft-print key
+  // "llist\n" by default
+  strcpy(labels[labelsc].nome, "BRKDIS"); labels[labelsc++].value = 0XF650; // m100def
+  // 1 byte
+  // store 80h here to disable the top row of keys (Fx,
+  // print, arrows)
+  // store 0h here to enable top row of keys
+  strcpy(labels[labelsc].nome, "MAXRAM"); labels[labelsc++].value = 0XF5EF; // m100def
+  // top of user ram, above this are system vars that
+  // shouldn't be frobbed casually....62959 decimal
+  strcpy(labels[labelsc].nome, "HIMEM"); labels[labelsc++].value = 0XF5F4; // m100def
+  // 2 bytes -- bottom of protected memory for binaries
+  strcpy(labels[labelsc].nome, "FREBAS"); labels[labelsc++].value = 0XF99A; // m100def
+  // 2 bytes
+  // points to start of free BASIC memory
+  strcpy(labels[labelsc].nome, "MAXFILE"); labels[labelsc++].value = 0XFC82; // m100def
+  // 1 byte
+  // number of file buffers reserved
+  strcpy(labels[labelsc].nome, "NEXTTXT"); labels[labelsc++].value = 0XF9A5; // m100def
+  // 2 bytes
+  // address of next text file
+  strcpy(labels[labelsc].nome, "DOSTART"); labels[labelsc++].value = 0XFBAE; // m100def
+  // 2 bytes
+  // start of DO files
+  strcpy(labels[labelsc].nome, "COSTART"); labels[labelsc++].value = 0XFBB0; // m100def
+  // 2 bytes
+  // start of CO files
+  strcpy(labels[labelsc].nome, "VARSTART"); labels[labelsc++].value = 0XFBB2; // m100def
+  // 2 bytes
+  // start of BASIC variable space
+  strcpy(labels[labelsc].nome, "ARRSTART"); labels[labelsc++].value = 0XFBB4; // m100def
+  // 2 bytes
+  // start of BASIC arrays
+  strcpy(labels[labelsc].nome, "FRESTART"); labels[labelsc++].value = 0XFBB6; // m100def
+  // 2 bytes
+  // start of free memory
+  strcpy(labels[labelsc].nome, "FILEEND"); labels[labelsc++].value = 0XF88C; // m100def
+  // 2 bytes
+  // end of file storage
+  strcpy(labels[labelsc].nome, "SYSRAM"); labels[labelsc++].value = 0XFAC0; // m100def
+  // 2 bytes
+  // lowest ram used by system
+  strcpy(labels[labelsc].nome, "HOOK"); labels[labelsc++].value = 0XFADA; // m100def
+  // RST7 hook table address
+  // you can call the Nth function in the table by:
+  // rst7
+  // db 2n
+  // and RST7 will call HOOK+2n
 
   char sline[256];
   memc = 0;
@@ -443,9 +738,17 @@ int main(int argc, char** argv) {
     printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
     return 1;
   }
-  if(TOP == mem[0].addr) {
+  if(TOP == mem[0].addr && relocate != 'L') {
     printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
     return 1;
+  }
+  if(relocate == 'L') {
+    if(memc > 320) {
+      unsigned int over = memc-320;
+      printf(" /!\ You asked for relocation to the LCD alternate buffer, but the code is too big by %d byte%c. Giving up...\n", over, over>1?'s':'');
+      return 1;
+    }
+    TOP = BEGLCD;
   }
   strcpy(fname1, fnamep);
   char tmp[12] = {0};
