@@ -2,7 +2,7 @@
    8085asm - Simple 8085 assembler and disassembler
    ########################################################################
    Copyright (c):	2009 Luis Claudio Gamboa Lopes
-                  2022 Kongduino for this version
+                  	2022 Kongduino for this version
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -31,7 +31,7 @@ typedef struct {
   int value;
 } Symbol;
 
-Symbol labels[250];
+Symbol labels[512];
 
 /*
      Code below is based in file asm-id.c of GNUSim8085 - http://gnusim8085.sourceforge.net/

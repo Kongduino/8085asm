@@ -41,7 +41,7 @@ void ucase (char * str) {
 int addr = 0;
 int addi = 0;
 unsigned char prg[256];
-int labelsc = 0;
+unsigned long labelsc = 0;
 int pass;
 int memc;
 unsigned char sum;
@@ -69,6 +69,8 @@ int parseNumber(char *arg, char *line) {
     // ':'
     int n = sscanf(line, "%*s '%c", &myValue);
     // printf("n = %d, myValue = %d\n", n, myValue);
+    if (n == 1) return myValue;
+	n = sscanf(line, "%*s: %*s '%c", &myValue);
     if (n == 1) return myValue;
     printf("sscanf failed.\n");
   }
@@ -116,15 +118,18 @@ int parseNumber(char *arg, char *line) {
 }
 
 int parsearg(char* arg, char * line) {
-  int i;
+  unsigned long i;
   if (arg == NULL) {
     printf("line %i error!!!!\n%s\n", lc + 1, line);
     exit(-1);
   };
-  for (i = 0; i < labelsc; i++) {
-    if (strcmp(labels[i].nome, arg) == 0) {
-      return labels[i].value;
-    };
+  if(arg[0] != '\'' && arg[0]>'9') {
+    for (i = 0; i < labelsc; i++) {
+      if (strcmp(labels[i].nome, arg) == 0) {
+        return labels[i].value;
+      };
+    }
+    printf("%s is not in labels. [pass = %d]. %s\n", arg, pass, labels[258]);
   }
   // sscanf(arg, "%X", &i);
   // return i;
@@ -152,6 +157,7 @@ int parse(char * line) {
       ucase(label);
       strcpy(labels[labelsc].nome, label);
       labels[labelsc].value = addr;
+      // printf(" • New label: %s. labelsc = %d.\n", label, labelsc);
       labelsc++;
     }
   } else {
@@ -730,7 +736,7 @@ int main(int argc, char** argv) {
   // rst7
   // db 2n
   // and RST7 will call HOOK+2n
-  printf("done!\n");
+  printf("done! There are %d labels.\n", labelsc);
 
   char sline[256];
   memc = 0;
