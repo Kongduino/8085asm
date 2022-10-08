@@ -153,7 +153,7 @@ int parse(char * line) {
     label = strtok(sline, " \t:, \n");
     men = strtok(NULL, " \t:, \n");
     if (pass == 1) {
-      printf("label=%s  %04X\n", label, addr);
+      // printf("label=%s  %04X\n", label, addr);
       ucase(label);
       strcpy(labels[labelsc].nome, label);
       labels[labelsc].value = addr;
