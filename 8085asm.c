@@ -153,7 +153,7 @@ int parse(char * line) {
     label = strtok(sline, " \t:, \n");
     men = strtok(NULL, " \t:, \n");
     if (pass == 1) {
-      //printf("label=%s  %04X\n", label, addr);
+      printf("label=%s  %04X\n", label, addr);
       ucase(label);
       strcpy(labels[labelsc].nome, label);
       labels[labelsc].value = addr;
@@ -236,7 +236,7 @@ int parse(char * line) {
   //busca pseudo
   if (strcmp("ORG", men) == 0) {
     addr = parsearg(arg1, line);
-    // printf("org ===> 0x%04X\n", addr);
+    printf("org ===> 0x%04X\n", addr);
     return 0;
   };
   if ((label != NULL) && (pass == 1)) {
@@ -319,14 +319,6 @@ int main(int argc, char** argv) {
         optind += 1;
         printf(" * Do not relocate. OK.\n");
         break;
-      case 'L':
-        // Relocate to alternate LCD buffer,
-        // BEGLCD 0xFE00 to ENDLCD EQU 0XFF40, 320 bytes
-        // Only if the code fits of course...
-        relocate = 'L';
-        optind += 1;
-        printf(" * Relocate to LCD buffer, 0xFE00-0xFF40.\n");
-        break;
     }
   }
   if (optind < argc) {
@@ -352,13 +344,6 @@ int main(int argc, char** argv) {
   strcat(fname3, ".co");
   strcpy(fname4, fnamep);
   strcat(fname4, ".do");
-  printf(" * Saving %s:\n", fname2);
-  fout = fopen(fname2, "w");
-  if (!fout) {
-    printf("Error opening file: %s\n", fname2);
-    return -1;
-  }
-  fprintf(fout, "8085 Simple Assembler 2022\n\n");
   printf(" • Creating internal labels... ");
   strcpy(labels[labelsc].nome, "BAUDST"); labels[labelsc++].value = 0x6E75;
   strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xFE00;
@@ -739,22 +724,35 @@ int main(int argc, char** argv) {
   // db 2n
   // and RST7 will call HOOK+2n
   printf("done! There are %lu labels.\n", labelsc);
+  unsigned long origLabelsc = labelsc;
 
   char sline[256];
   memc = 0;
+  if (remove(fname2) == 0) {
+    printf("File %s was deleted successfully.\n", fname2);
+  } else {
+    // printf("File %s was NOT deleted successfully.\n", fname2);
+  }
+  printf(" * Saving %s:\n", fname2);
+  fout = fopen(fname2, "w");
+  if (!fout) {
+    printf("Error opening file: %s\n", fname2);
+    return -1;
+  }
   unsigned short TOP = doCompile();
+  labelsc = origLabelsc; // restore pointer to the last internal label + 1
   printf("TOP is 0x%04x. ORG is 0x%04x\n", TOP, mem[0].addr);
   if (relocate == 'N') {
     printf("Relocate = [X], no need to recompile!\nDone...\n\n\n");
     return 1;
   }
-  if(relocate == 'L') {
+  if(mem[0].addr == 0xFE00) {
     if(memc > 320) {
       unsigned int over = memc-320;
-      printf(" /!\\ You asked for relocation to the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
+      printf(" /!\\ You are compiling into the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
       return 1;
     }
-    TOP = 0xFE00; // BEGLCD
+    TOP = mem[0].addr;
   }
   if(TOP == mem[0].addr) {
     printf("Sweet. TOP = ORG, no need to recompile!\nDone...\n\n\n");
@@ -764,16 +762,30 @@ int main(int argc, char** argv) {
   char tmp[12] = {0};
   sprintf(tmp, ".%04x.asm", TOP);
   strcat(fname1, tmp);
+  sprintf(tmp, ".%04x.map", TOP);
+  strcpy(fname2, fnamep);
+  strcat(fname2, tmp);
   printf("TOP & iaddr are different. Rewriting source to %s...\n", fname1);
+  printf(" * Saving %s:\n", fname2);
+  if (remove(fname2) == 0) {
+    printf("File %s was deleted successfully.\n", fname2);
+  } else {
+    // printf("File %s was NOT deleted successfully.\n", fname2);
+  }
+  fout = fopen(fname2, "w");
+  if (!fout) {
+    printf("Error opening file: %s\n", fname2);
+    return -1;
+  }
   if (remove(fname3) == 0) {
     printf("File %s was deleted successfully.\n", fname3);
   } else {
-    printf("File %s was NOT deleted successfully.\n", fname3);
+    // printf("File %s was NOT deleted successfully.\n", fname3);
   }
   if (remove(fname1) == 0) {
     printf("File %s was deleted successfully.\n", fname1);
   } else {
-    printf("File %s was NOT deleted successfully.\n", fname1);
+    // printf("File %s was NOT deleted successfully.\n", fname1);
   }
   fclose(fin);
   printf("Opening file: %s\n", fname0);
@@ -825,6 +837,7 @@ int main(int argc, char** argv) {
 }
 
 unsigned short doCompile() {
+  fprintf(fout, "8085 Simple Assembler 2022\n\n");
   int i;
   char line[256];
   pass = 1;
@@ -872,7 +885,7 @@ unsigned short doCompile() {
     lc++;
   }
   fprintf(fout, "\n\nSYMBOLIC TABLE:\n\n");
-  printf("   Saving SYMBOLIC TABLE.\n");
+  printf("   Saving SYMBOLIC TABLE [%lu].\n", labelsc);
   for (i = 0; i < labelsc; i++) fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
   fprintf(fout, "\n\nMEM  (%i bytes):\n\n", memc);
   printf(" * RAM occupied:  (%i bytes):\n", memc);
