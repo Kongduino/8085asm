@@ -736,7 +736,7 @@ int main(int argc, char** argv) {
   // rst7
   // db 2n
   // and RST7 will call HOOK+2n
-  printf("done! There are %d labels.\n", labelsc);
+  printf("done! There are %lu labels.\n", labelsc);
 
   char sline[256];
   memc = 0;
