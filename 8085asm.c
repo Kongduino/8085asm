@@ -320,11 +320,11 @@ int main(int argc, char** argv) {
         printf(" * Do not relocate. OK.\n");
       case 'L':
         // Relocate to alternate LCD buffer,
-        // BEGLCD 0XFE00 to ENDLCD EQU 0XFF40, 320 bytes
+        // BEGLCD 0xFE00 to ENDLCD EQU 0XFF40, 320 bytes
         // Only if the code fits of course...
         relocate = 'L';
         optind += 1;
-        printf(" * Relocate to LCD buffer. OK.\n");
+        printf(" * Relocate to LCD buffer, 0xFE00-0xFF40.\n");
     }
   }
   if (optind < argc) {
@@ -756,7 +756,7 @@ int main(int argc, char** argv) {
       printf(" /!\\ You asked for relocation to the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
       return 1;
     }
-    TOP = 0XFE00; // BEGLCD
+    TOP = 0xFE00; // BEGLCD
   }
   strcpy(fname1, fnamep);
   char tmp[12] = {0};
