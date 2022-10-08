@@ -351,6 +351,7 @@ int main(int argc, char** argv) {
     return -1;
   }
   fprintf(fout, "8085 Simple Assembler 2022\n\n");
+  printf(" • Creating internal labels... ");
   strcpy(labels[labelsc].nome, "BAUDST"); labels[labelsc++].value = 0x6E75;
   strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xFE00;
   strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xFF40;
@@ -729,6 +730,7 @@ int main(int argc, char** argv) {
   // rst7
   // db 2n
   // and RST7 will call HOOK+2n
+  printf("done!\n");
 
   char sline[256];
   memc = 0;
@@ -745,10 +747,10 @@ int main(int argc, char** argv) {
   if(relocate == 'L') {
     if(memc > 320) {
       unsigned int over = memc-320;
-      printf(" /!\ You asked for relocation to the LCD alternate buffer, but the code is too big by %d byte%c. Giving up...\n", over, over>1?'s':'');
+      printf(" /!\\ You asked for relocation to the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
       return 1;
     }
-    TOP = BEGLCD;
+    TOP = 0XFE00; // BEGLCD
   }
   strcpy(fname1, fnamep);
   char tmp[12] = {0};
