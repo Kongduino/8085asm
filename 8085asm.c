@@ -29,7 +29,7 @@
 
 int lc = 1;
 unsigned short doCompile();
-#define BEGLCD 0xf8a0
+#define TOPLCD 0xf856 // 63574
 
 void ucase (char * str) {
   int i;
@@ -43,6 +43,7 @@ int addr = 0;
 int addi = 0;
 unsigned char prg[256];
 unsigned long labelsc = 0;
+unsigned int HIMEM = 62960;
 int pass;
 int memc;
 unsigned char sum;
@@ -320,6 +321,19 @@ int main(int argc, char** argv) {
         optind += 1;
         printf(" * Do not relocate. OK.\n");
         break;
+      case 'H':
+        // Set Himem
+        optind += 1;
+        int n, h;
+        n = sscanf(argv[optind], "%d", &h);
+        if (n == 0) {
+          printf(" * Set HIMEM to %s: invalid value!\n", argv[optind]);
+        } else {
+          printf(" * Set HIMEM to: %d.\n", h);
+          HIMEM = h;
+        }
+        optind += 1;
+        break;
     }
   }
   if (optind < argc) {
@@ -347,9 +361,12 @@ int main(int argc, char** argv) {
   strcat(fname4, ".do");
   printf(" • Creating internal labels... ");
   strcpy(labels[labelsc].nome, "BAUDST"); labels[labelsc++].value = 0x6E75;
-  strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xf8a0;
-  // https://ftp.whtech.com/club100/pg/pg200/rammap.do
-  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xfa2f;
+  strcpy(labels[labelsc].nome, "BEGLCD"); labels[labelsc++].value = 0xFE00;
+  strcpy(labels[labelsc].nome, "ENDLCD"); labels[labelsc++].value = 0xFF40;
+  strcpy(labels[labelsc].nome, "ALTLCD"); labels[labelsc++].value = 0XFCC0; // m100def
+  // start of alternate screen image 320 bytes
+  strcpy(labels[labelsc].nome, "ALTLCDE"); labels[labelsc++].value = 0XFDFF; // m100def
+  // end of alternate LCD screen image
   strcpy(labels[labelsc].nome, "BRKCHK"); labels[labelsc++].value = 0x7283;
   strcpy(labels[labelsc].nome, "CARDET"); labels[labelsc++].value = 0x6EEF;
   strcpy(labels[labelsc].nome, "CASIN"); labels[labelsc++].value = 0x14B0;
@@ -464,10 +481,6 @@ int main(int argc, char** argv) {
   // print number of bytes of free memory
   // Entry Conditions: none
   // Exit  Conditions: none
-  strcpy(labels[labelsc].nome, "ALTLCD"); labels[labelsc++].value = 0XFCC0; // m100def
-  // start of alternate screen image 320 bytes
-  strcpy(labels[labelsc].nome, "ALTLCDE"); labels[labelsc++].value = 0XFDFF; // m100def
-  // end of alternate LCD screen image
   strcpy(labels[labelsc].nome, "KEYWTU"); labels[labelsc++].value = 0X5D64; // m100def
   // wait for key to be pressed, convert it to uppercase
   // Entry Conditions: None
@@ -743,9 +756,9 @@ int main(int argc, char** argv) {
   }
   unsigned short TOP = doCompile();
   labelsc = origLabelsc; // restore pointer to the last internal label + 1
-  if(mem[0].addr == BEGLCD) {
-    if(memc > 320) {
-      unsigned int over = memc-320;
+  if(mem[0].addr == TOPLCD) {
+    if(memc > 474) {
+      unsigned int over = memc-474;
       printf(" /!\\ You are compiling into the LCD alternate buffer, but the code is too big by %d bytes. Giving up...\n", over);
       return 1;
     }
@@ -956,10 +969,10 @@ unsigned short doCompile() {
   printf(" * File size: %d. ", sz);
   if (sz == memc) printf("This matches memc. Goodie.\n");
   else printf("This differs from memc (%d). No goodsky.\n", memc);
-  unsigned int HIMEM = 62960 - sz - 1;
-  printf("    CLEAR 256,%d\n", HIMEM);
+  unsigned int newHIMEM = HIMEM - sz - 1;
+  printf("    CLEAR 256,%d\n", newHIMEM);
 
   fclose(fout4);
   printf("%s\n\n\n", "All done!");
-  return (HIMEM + 1);
+  return (newHIMEM + 1);
 }
