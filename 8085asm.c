@@ -904,7 +904,8 @@ unsigned short doCompile() {
   printf("   Saving SYMBOLIC TABLE [%lu].\n", labelsc);
   for (i = 0; i < labelsc; i++) fprintf(fout, " %-10s  %04XH\n", labels[i].nome, labels[i].value);
   fprintf(fout, "\n\nMEM  (%i bytes):\n\n", memc);
-  printf(" * RAM occupied:  (%i bytes):\n", memc);
+  printf(" * HIMEM: 0x%04x [%d]\n", HIMEM, HIMEM);
+  printf(" * RAM occupied: (%i bytes):\n", memc);
   strcpy(fname2, fnamep);
   strcat(fname2, ".hex");
   printf(" * Saving %s, %s and %s:\n", fname2, fname3, fname4);
@@ -969,10 +970,12 @@ unsigned short doCompile() {
   printf(" * File size: %d. ", sz);
   if (sz == memc) printf("This matches memc. Goodie.\n");
   else printf("This differs from memc (%d). No goodsky.\n", memc);
-  unsigned int newHIMEM = HIMEM - sz - 1;
-  printf("    CLEAR 256,%d\n", newHIMEM);
-
+  unsigned int newHIMEM = HIMEM - sz;
+  unsigned int newTOP = newHIMEM+1;
+  printf(" * Code range: 0x%004x to 0x%004x\n", newTOP, (newTOP+memc-1));
+  printf(" * New HIMEM: 0x%04x [%d]\n", newHIMEM, newHIMEM);
+  printf("-->  CLEAR 256,%d\n", newHIMEM);
   fclose(fout4);
   printf("%s\n\n\n", "All done!");
-  return (newHIMEM + 1);
+  return newTOP;
 }
