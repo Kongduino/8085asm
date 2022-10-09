@@ -1,6 +1,6 @@
 typedef struct {
   int value;
-  char name[8];
+  char name[12];
 } Hex2Label;
 
 Hex2Label mylabels[] = {
