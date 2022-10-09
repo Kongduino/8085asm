@@ -327,9 +327,15 @@ int main(int argc, char** argv) {
         int n, h;
         n = sscanf(argv[optind], "%d", &h);
         if (n == 0) {
-          printf(" * Set HIMEM to %s: invalid value!\n", argv[optind]);
+          n = sscanf(argv[optind], "%X", &h);
+          if (n == 0) {
+            printf(" * Set HIMEM to %s: invalid value!\n", argv[optind]);
+          } else {
+            printf(" * Set HIMEM to: %d [0x%04X].\n", h, h);
+            HIMEM = h;
+          }
         } else {
-          printf(" * Set HIMEM to: %d.\n", h);
+          printf(" * Set HIMEM to: %d [0x%04X].\n", h, h);
           HIMEM = h;
         }
         optind += 1;
